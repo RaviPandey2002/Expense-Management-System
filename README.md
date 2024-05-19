@@ -1,12 +1,20 @@
 # Expense Management System in React
 
-This project with [Create React App](https://github.com/facebook/create-react-app).
+This project is an Expense Management System built using React. It allows users to add, edit, and delete expenses, categorize expenses, generate expense reports, visualize expenses with charts, and provides user authentication and authorization.
 
 ## Built using:
 
 - Front-end library: React
 - CSS framework: React-bootstrap
 - CSS animations library: Animate.css
+
+## Usage
+
+1. Register or log in to your account.
+2. Navigate to the 'Add Expense' page to add a new expense.
+3. View and manage your expenses in the 'Expenses' section.
+4. Generate and view reports in the 'Reports' section.
+
 
 ## Features
 
@@ -16,61 +24,22 @@ This project with [Create React App](https://github.com/facebook/create-react-ap
 - Visualize expenses with charts
 - User authentication and authorization
 
-## Installation
+## Contributing
 
-To get a local copy up and running follow these simple steps:
-
-1. Clone the repository
-   ```sh
-   git clone [https://github.com/your-/Expense-Management-System.git](https://github.com/RaviPandey2002/Expense-Management-System.git)
-
-Navigate to the project directory
-sh
-cd expense-management-system
-Install dependencies
-sh
-npm install
-
-Available Scripts
-In the project directory, you can run:
-
-npm start
-Runs the app in the development mode.
-Open http://localhost:3000 to view it in your browser.
-
-The page will reload when you make changes.
-You may also see any lint errors in the console.
-
-npm test
-Launches the test runner in the interactive watch mode.
-See the section about running tests for more information.
-
-npm run build
-Builds the app for production to the build folder.
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.
-Your app is ready to be deployed!
-
-See the section about deployment for more information.
-
-Usage
-Register or log in to your account.
-Navigate to the 'Add Expense' page to add a new expense.
-View and manage your expenses in the 'Expenses' section.
-Generate and view reports in the 'Reports' section.
-Contributing
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
 
-Fork the Project
-Create your Feature Branch (git checkout -b feature/AmazingFeature)
-Commit your Changes (git commit -m 'Add some AmazingFeature')
-Push to the Branch (git push origin feature/AmazingFeature)
-Open a Pull Request
-License
-Distributed under the MIT License. See LICENSE for more information.
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-Contact
-Your Name - @your-twitter-handle - your-email@example.com
+## License
 
-Project Link: https://github.com/your-username/expense-management-system
+Distributed under the MIT License. See `LICENSE` for more information.
+
+## Contact
+
+Your Name - @[your-twitter-handle](https://www.linkedin.com/in/ravi-pandey-52a20b217/) - Ravi2001pandey@gmail.com
+
+Project Link: [https://github.com/RaviPandey2002/Expense-Management-System](https://github.com/RaviPandey2002/Expense-Management-System)

@@ -2,12 +2,6 @@
 
 This project is an Expense Management System built using React. It allows users to add, edit, and delete expenses, categorize expenses, generate expense reports, visualize expenses with charts, and provides user authentication and authorization.
 
-## Built using:
-
-- Front-end library: React
-- CSS framework: React-bootstrap
-- CSS animations library: Animate.css
-
 ## Usage
 
 1. Register or log in to your account.
@@ -40,6 +34,8 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
 
-Your Name - @[your-twitter-handle](https://www.linkedin.com/in/ravi-pandey-52a20b217/) - Ravi2001pandey@gmail.com
+Name - Ravi Pandey
+Linkden -(https://www.linkedin.com/in/ravi-pandey-52a20b217/)
+Email - Ravi2001pandey@gmail.com
 
-Project Link: [https://github.com/RaviPandey2002/Expense-Management-System](https://github.com/RaviPandey2002/Expense-Management-System)
+Project Link: [https://github.com/RaviPandey2002/Expense-Management-System]

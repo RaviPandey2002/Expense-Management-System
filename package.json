@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "expanse tracker app",
   "main": "server.js",
+  
   "scripts": {
     "start": "node server.js",
     "server": "nodemon server.js",
@@ -12,7 +13,7 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
-  "dependencies": {
+  "dependencies": { 
     "colors": "^1.4.0",
     "concurrently": "^7.5.0",
     "cors": "^2.8.5",

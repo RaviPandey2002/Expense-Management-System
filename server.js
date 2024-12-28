@@ -1,41 +1,15 @@
-const express = require("express");
-const cors = require("cors");
-const morgan = require("morgan");
+const app = require("./app");
 const dotenv = require("dotenv");
-const colors = require("colors");
-const path = require("path");
-const connectDb = require("./config/connectDb");
-// config dot env file
+const connectDB = require("./config/connectDb");
 dotenv.config();
 
-//databse call
-connectDb();
 
-//rest object
-const app = express();
+const PORT = process.env.PORT || 6000;
 
-//middlewares
-app.use(morgan("dev"));
-app.use(express.json());
-app.use(cors());
-
-//routes
-//user routes
-app.use("/api/v1/users", require("./routes/userRoute"));
-//transections routes
-app.use("/api/v1/transections", require("./routes/transectionRoutes"));
-
-//static files
-app.use(express.static(path.join(__dirname, "./client/build")));
-
-app.get("*", function (req, res) {
-  res.sendFile(path.join(__dirname, "./client/build/index.html"));
-});
-
-//port
-const PORT = 8080 || process.env.PORT;
+connectDB();
 
 //listen server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
+app.listen(PORT, () =>
+  console.log(`Server is running successfully on PORT ${PORT}`)
+);

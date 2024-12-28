@@ -5,21 +5,21 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "name is required"],
+      require,
     },
     email: {
       type: String,
-      required: [true, "email is required and should be unique"],
+      require,
       unique: true,
     },
     password: {
       type: String,
-      required: [true, "password is required"],
+      require,
     },
   },
   { timestamps: true }
 );
 
 //export
-const userModel = mongoose.model("users", userSchema);
-module.exports = userModel;
+const users = mongoose.model("users", userSchema);
+module.exports = users;

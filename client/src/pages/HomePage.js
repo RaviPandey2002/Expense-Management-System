@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, message, Modal, Select, Table, DatePicker } from "antd";
+import { Form, Input, message, Modal, Select, Table, DatePicker, Button } from "antd";
 import {
   UnorderedListOutlined,
   AreaChartOutlined,
@@ -16,14 +16,13 @@ const { RangePicker } = DatePicker;
 const HomePage = () => {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [allTransection, setAllTransection] = useState([]);
+  const [allTransaction, setAllTransaction] = useState([]);
   const [frequency, setFrequency] = useState("7");
-  const [selectedDate, setSelectedate] = useState([]);
+  const [selectedDate, setSelectedDate] = useState([]);
   const [type, setType] = useState("all");
-  const [viewData, setViewData] = useState("table");
+  const [viewMode, setViewMode] = useState("table");
   const [editable, setEditable] = useState(null);
 
-  //table data
   const columns = [
     {
       title: "Date",
@@ -43,8 +42,8 @@ const HomePage = () => {
       dataIndex: "category",
     },
     {
-      title: "Refrence",
-      dataIndex: "refrence",
+      title: "Reference", // Changed: Corrected typo from "Refrence" to "Reference"
+      dataIndex: "reference", // Changed: Corrected typo from "refrence" to "reference"
     },
     {
       title: "Actions",
@@ -58,82 +57,88 @@ const HomePage = () => {
           />
           <DeleteOutlined
             className="mx-2"
-            onClick={() => {
-              handleDelete(record);
-            }}
+            onClick={() => handleDelete(record)} // Changed: Simplified function call
           />
         </div>
       ),
     },
   ];
 
-  //get-all transactions
-
-  //useEffect Hook
   useEffect(() => {
     const getAllTransactions = async () => {
       try {
         const user = JSON.parse(localStorage.getItem("user"));
         setLoading(true);
-        const res = await axios.post("/api/v1/transections/get-transection", {
-          userid: user._id,
-          frequency,
-          selectedDate,
-          type,
-        });
-        setAllTransection(res.data);
+        const selectedDateParam =
+          frequency === "custom" && selectedDate.length
+            ? selectedDate
+            : undefined;
+        const res = await axios.post(
+          `${process.env.REACT_APP_API_BASE_URL}/transactions/get-transactions`,
+          {
+            userid: user._id,
+            frequency,
+            selectedDate: selectedDateParam,
+            type,
+          }
+        );
+        console.log("res:", res);
+        setAllTransaction(res.data);
         setLoading(false);
       } catch (error) {
-        message.error("Ftech Issue With Tranction");
+        message.error("Unable to fetch transactions.");
+        setLoading(false);
       }
     };
     getAllTransactions();
-  }, [frequency, selectedDate, type, setAllTransection]);
+  }, [frequency, selectedDate, type]);
 
-  //delete handler
   const handleDelete = async (record) => {
     try {
       setLoading(true);
-      await axios.post("/api/v1/transections/delete-transection", {
-        transacationId: record._id,
-      });
+      await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/transactions/delete-transaction`,
+        {
+          transactionId: record._id,
+        }
+      );
       setLoading(false);
-      message.success("Transaction Deleted!");
+      message.success("transaction Deleted!");
     } catch (error) {
       setLoading(false);
-      console.log(error);
-      message.error("unable to delete");
+      message.error("Unable to delete transaction.");
     }
   };
 
-  // form handling
   const handleSubmit = async (values) => {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
       setLoading(true);
       if (editable) {
-        await axios.post("/api/v1/transections/edit-transection", {
-          payload: {
-            ...values,
-            userId: user._id,
-          },
-          transacationId: editable._id,
-        });
-        setLoading(false);
-        message.success("Transaction Updated Successfully");
+        await axios.post(
+          `${process.env.REACT_APP_API_BASE_URL}/transactions/edit-transaction`,
+          {
+            payload: { ...values, userId: user._id },
+            transactionId: editable._id,
+          }
+        );
+        message.success("transaction Updated Successfully");
       } else {
-        await axios.post("/api/v1/transections/add-transection", {
-          ...values,
-          userid: user._id,
-        });
-        setLoading(false);
+        await axios.post(
+          `${process.env.REACT_APP_API_BASE_URL}/transactions/add-transaction`,
+          {
+            ...values,
+            userid: user._id,
+          }
+        );
         message.success("Transaction Added Successfully");
       }
       setShowModal(false);
       setEditable(null);
+      setLoading(false);
     } catch (error) {
       setLoading(false);
-      message.error("please fill all fields");
+      message.error("Please fill all fields correctly."); // Changed: Updated error message
     }
   };
 
@@ -143,22 +148,22 @@ const HomePage = () => {
       <div className="filters">
         <div>
           <h6>Select Frequency</h6>
-          <Select value={frequency} onChange={(values) => setFrequency(values)}>
+          <Select value={frequency} onChange={(value) => setFrequency(value)}>
             <Select.Option value="7">LAST 1 Week</Select.Option>
             <Select.Option value="30">LAST 1 Month</Select.Option>
-            <Select.Option value="365">LAST 1 year</Select.Option>
-            <Select.Option value="custom">custom</Select.Option>
+            <Select.Option value="365">LAST 1 Year</Select.Option>
+            <Select.Option value="custom">Custom</Select.Option>
           </Select>
           {frequency === "custom" && (
             <RangePicker
               value={selectedDate}
-              onChange={(values) => setSelectedate(values)}
-            />
+              onChange={(dates) => setSelectedDate(dates)}
+            /> // Changed: Corrected date range picker logic
           )}
         </div>
-        <div className="filter-tab ">
+        <div className="filter-tab">
           <h6>Select Type</h6>
-          <Select value={type} onChange={(values) => setType(values)}>
+          <Select value={type} onChange={(value) => setType(value)}>
             <Select.Option value="all">ALL</Select.Option>
             <Select.Option value="income">INCOME</Select.Option>
             <Select.Option value="expense">EXPENSE</Select.Option>
@@ -167,15 +172,15 @@ const HomePage = () => {
         <div className="switch-icons">
           <UnorderedListOutlined
             className={`mx-2 ${
-              viewData === "table" ? "active-icon" : "inactive-icon"
-            }`}
-            onClick={() => setViewData("table")}
+              viewMode === "table" ? "active-icon" : "inactive-icon"
+            }`} // Changed: Updated variable to "viewMode"
+            onClick={() => setViewMode("table")}
           />
           <AreaChartOutlined
             className={`mx-2 ${
-              viewData === "analytics" ? "active-icon" : "inactive-icon"
-            }`}
-            onClick={() => setViewData("analytics")}
+              viewMode === "analytics" ? "active-icon" : "inactive-icon"
+            }`} // Changed: Updated variable to "viewMode"
+            onClick={() => setViewMode("analytics")}
           />
         </div>
         <div>
@@ -188,14 +193,14 @@ const HomePage = () => {
         </div>
       </div>
       <div className="content">
-        {viewData === "table" ? (
-          <Table columns={columns} dataSource={allTransection} />
+        {viewMode === "table" ? (
+          <Table columns={columns} dataSource={allTransaction} rowKey="_id" />
         ) : (
-          <Analytics allTransection={allTransection} />
+          <Analytics allTransaction={allTransaction} />
         )}
       </div>
       <Modal
-        title={editable ? "Edit Transaction" : "Add Transection"}
+        title={editable ? "Edit Transaction" : "Add Transaction"}
         open={showModal}
         onCancel={() => setShowModal(false)}
         footer={false}
@@ -205,16 +210,30 @@ const HomePage = () => {
           onFinish={handleSubmit}
           initialValues={editable}
         >
-          <Form.Item label="Amount" name="amount">
-            <Input type="text" required />
+          <Form.Item
+            label="Amount"
+            name="amount"
+            rules={[{ required: true, message: "Amount is required" }]}
+          >
+            <Input type="text" />
           </Form.Item>
-          <Form.Item label="type" name="type">
+
+          <Form.Item
+            label="Type"
+            name="type"
+            rules={[{ required: true, message: "Type is required" }]}
+          >
             <Select>
               <Select.Option value="income">Income</Select.Option>
               <Select.Option value="expense">Expense</Select.Option>
             </Select>
           </Form.Item>
-          <Form.Item label="Category" name="category">
+
+          <Form.Item
+            label="Category"
+            name="category"
+            rules={[{ required: true, message: "Category is required" }]}
+          >
             <Select>
               <Select.Option value="salary">Salary</Select.Option>
               <Select.Option value="tip">Tip</Select.Option>
@@ -227,21 +246,30 @@ const HomePage = () => {
               <Select.Option value="tax">TAX</Select.Option>
             </Select>
           </Form.Item>
+
           <Form.Item label="Date" name="date">
-            <Input type="date" />
+            <DatePicker />
           </Form.Item>
-          <Form.Item label="Refrence" name="refrence">
-            <Input type="text" required />
+
+          <Form.Item
+            label="Reference"
+            name="reference"
+            rules={[{ required: true, message: "Reference is required" }]}
+          >
+            <Input type="text" />
           </Form.Item>
+
           <Form.Item label="Description" name="description">
-            <Input type="text" required />
+            <Input type="text" />
           </Form.Item>
-          <div className="d-flex justify-content-end">
-            <button type="submit" className="btn btn-primary">
-              {" "}
-              SAVE
-            </button>
-          </div>
+
+          <Form.Item>
+            <div className="d-flex justify-content-end">
+              <Button type="primary" htmlType="submit">
+                SAVE
+              </Button>
+            </div>
+          </Form.Item>
         </Form>
       </Modal>
     </Layout>

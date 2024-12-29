@@ -8,12 +8,16 @@ const app = express();
 
 app.use(morgan("dev"));
 app.use(express.json());
-
 app.use(cors());
 
-app.use("/api/v1/users", require("./routes/userRoute"));
+// # ROUTES
 
-app.use("/api/v1/transections", require("./routes/transectionRoutes"));
+app.use("/testing",(req,res)=>{ 
+  console.log("Testing Route working!!");
+  return res.status(200).send({message:"Test successfull!"});
+});
+app.use("/api/v1/users", require("./routes/userRoute"));
+app.use("/api/v1/transactions", require("./routes/transactionRoutes"));
 
 //static files
 app.use(express.static(path.join(__dirname, "./client/build")));

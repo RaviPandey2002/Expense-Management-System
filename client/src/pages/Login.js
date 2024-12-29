@@ -13,9 +13,10 @@ const Login = () => {
   const submitHandler = async (values) => {
     try {
       setLoading(true);
-      const response = await axios.post(`${process.env.LOCAL_BASE_URL_SERVER}/api/v1/users/login`,values);
+      console.log(`${process.env.REACT_APP_API_BASE_URL}`)
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/users/login`,values);
 
-      console.log("response",response);
+      console.log("response.login",response);
       const { data } = response
       setLoading(false);
       message.success("login success");
@@ -26,7 +27,8 @@ const Login = () => {
       navigate("/");
     } catch (error) {
       setLoading(false);
-      message.error("something went wrong");
+      console.error("Login failed:", error);
+      message.error("Something went wrong during login. Please try again.");
     }
   };
 

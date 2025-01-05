@@ -12,29 +12,30 @@ const getAllTransaction = async (req, res) => {
 
     // Check if userId is provided and convert it to ObjectId (if it is a valid ObjectId string)
     if (userId) {
-      query.userId = mongoose.Types.ObjectId(userId);  // Convert userId to ObjectId
+      query.userId = userId;
     }
-
-    // Handling frequency filter (e.g., Last 1 Week, Last 1 Month, etc.)
+    let startDate;
     if (frequency && frequency !== "custom") {
       const today = new Date();
-      let startDate;
-
-      // Set the start date based on the frequency
       if (frequency === "7") {
-        startDate = new Date(today.setDate(today.getDate() - 7)); // Last 1 Week
+        startDate = new Date();
+        startDate.setDate(today.getDate() - 7);
       } else if (frequency === "30") {
-        startDate = new Date(today.setMonth(today.getMonth() - 1)); // Last 1 Month
+        startDate = new Date();
+        startDate.setMonth(today.getMonth() - 1);
       } else if (frequency === "365") {
-        startDate = new Date(today.setFullYear(today.getFullYear() - 1)); // Last 1 Year
+        startDate = new Date();
+        startDate.setFullYear(today.getFullYear() - 1); // Last 1 Year
       }
 
-      query.date = { $gte: startDate }; // Filter transactions after the start date
+      query.date = { $gte: startDate };
     }
 
     // Handling custom date range filter
     if (frequency === "custom" && selectedDate && selectedDate.length === 2) {
       const [startDate, endDate] = selectedDate;
+      console.log("startDate ", startDate);
+      console.log(" endDate ",  endDate);
 
       // Ensure that selectedDate is converted to JavaScript Date objects if it's in moment format
       const start = new Date(startDate);
@@ -44,14 +45,14 @@ const getAllTransaction = async (req, res) => {
     }
 
     // Handling type filter (if applicable)
-    if (type) {
+    if (type && type !== "all") {
       query.type = type; // Filter by transaction type
     }
 
     // Fetch transactions based on the query
-    const Transactions = await Transaction.find({userId: userId })
+    const Transactions = await Transaction.find(query);
     console.log("query:", query);
-    console.log("Filtered Transactions:", Transactions);
+    // console.log("My Filtered Transactions:", Transactions);
 
     res.status(200).json(Transactions);
   } catch (error) {
@@ -88,7 +89,9 @@ const addTransaction = async (req, res) => {
     res.status(201).send("Transaction Created");
   } catch (error) {
     console.log("Error while Adding Transactions");
-    res.status(500).json({message:`Error while Adding Transactions: ${error}`});
+    res
+      .status(500)
+      .json({ message: `Error while Adding Transactions: ${error}` });
   }
 };
 

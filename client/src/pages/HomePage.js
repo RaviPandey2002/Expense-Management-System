@@ -8,6 +8,7 @@ import {
   Table,
   DatePicker,
   Button,
+  Tooltip,
 } from "antd";
 import {
   UnorderedListOutlined,
@@ -20,6 +21,7 @@ import axios from "axios";
 import Spinner from "./../components/Spinner";
 import moment from "moment";
 import Analytics from "../components/Analytics";
+import { CalendarOutlined, ClockCircleOutlined } from "@ant-design/icons";
 const { RangePicker } = DatePicker;
 
 const HomePage = () => {
@@ -81,14 +83,13 @@ const HomePage = () => {
         // console.log("HOME page User:",user._id);
         setLoading(true);
         const selectedDateParam =
-          frequency === "custom" && selectedDate.length
+          frequency === "custom" && selectedDate?.length
             ? selectedDate
             : undefined;
 
         let res;
         if (frequency !== "custom" || selectedDateParam) {
-          try
-          {
+          try {
             res = await axios.post(
               `${process.env.REACT_APP_API_BASE_URL}/transactions/get-transactions`,
               {
@@ -99,9 +100,7 @@ const HomePage = () => {
               }
             );
             setAllTransaction(res?.data);
-            console.log("RES RES ",res?.data);
-          }
-          catch(error){
+          } catch (error) {
             console.error("Error fetching from the API:", error);
           }
         }
@@ -164,6 +163,7 @@ const HomePage = () => {
       message.error("Please fill all fields correctly."); // Changed: Updated error message
     }
   };
+
   // Function to handle the change of date range
   const handleDateChange = (dates) => {
     if (dates) {
@@ -173,24 +173,42 @@ const HomePage = () => {
     }
   };
 
+  const handleFrequencyChange = (value) => {
+    setFrequency(value);
+    if (value !== "custom") {
+      setSelectedDate(null); // Clear custom date range when not in "custom"
+    }
+  };
+
+  const defaultRange = [moment().subtract(1, "months"), moment()]; // Default range for "custom" option
+
   return (
     <Layout>
       {loading && <Spinner />}
       <div className="filters">
         <div>
           <h6>Select Frequency</h6>
-          <Select value={frequency} onChange={(value) => setFrequency(value)}>
+          <Select
+            value={frequency}
+            onChange={handleFrequencyChange}
+            style={{ width: "80%" }}
+          >
             <Select.Option value="7">LAST 1 Week</Select.Option>
             <Select.Option value="30">LAST 1 Month</Select.Option>
             <Select.Option value="365">LAST 1 Year</Select.Option>
             <Select.Option value="custom">Custom</Select.Option>
           </Select>
+
           {frequency === "custom" && (
-            <RangePicker
-              value={selectedDate}
-              onChange={handleDateChange}
-              format="YYYY-MM-DD"
-            /> // Changed: Corrected date range picker logic
+            <>
+              <div>Please select a date range:</div>
+              <RangePicker
+                value={selectedDate || defaultRange}
+                onChange={handleDateChange}
+                format="YYYY-MM-DD"
+                placeholder={["Start Date", "End Date"]}
+              />
+            </>
           )}
         </div>
         <div className="filter-tab">
@@ -224,6 +242,7 @@ const HomePage = () => {
           </button>
         </div>
       </div>
+      
       <div className="content">
         {viewMode === "table" ? (
           <Table

@@ -34,7 +34,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
 
-Name - Ravi Pandey
+Name - Ravi Pandey.
 Linkden -(https://www.linkedin.com/in/ravi-pandey-52a20b217/)
 Email - Ravi2001pandey@gmail.com
 

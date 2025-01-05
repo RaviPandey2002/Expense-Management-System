@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, message, Modal, Select, Table, DatePicker, Button } from "antd";
+import {
+  Form,
+  Input,
+  message,
+  Modal,
+  Select,
+  Table,
+  DatePicker,
+  Button,
+} from "antd";
 import {
   UnorderedListOutlined,
   AreaChartOutlined,
@@ -25,11 +34,6 @@ const HomePage = () => {
 
   const columns = [
     {
-      title: "Date",
-      dataIndex: "date",
-      render: (text) => <span>{moment(text).format("YYYY-MM-DD")}</span>,
-    },
-    {
       title: "Amount",
       dataIndex: "amount",
     },
@@ -42,8 +46,14 @@ const HomePage = () => {
       dataIndex: "category",
     },
     {
-      title: "Reference", // Changed: Corrected typo from "Refrence" to "Reference"
-      dataIndex: "reference", // Changed: Corrected typo from "refrence" to "reference"
+      title: "Reference",
+      dataIndex: "reference",
+    },
+    {
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+      render: (text) => new Date(text).toLocaleDateString(),
     },
     {
       title: "Actions",
@@ -68,24 +78,37 @@ const HomePage = () => {
     const getAllTransactions = async () => {
       try {
         const user = JSON.parse(localStorage.getItem("user"));
+        // console.log("HOME page User:",user._id);
         setLoading(true);
         const selectedDateParam =
           frequency === "custom" && selectedDate.length
             ? selectedDate
             : undefined;
-        const res = await axios.post(
-          `${process.env.REACT_APP_API_BASE_URL}/transactions/get-transactions`,
+
+        let res;
+        if (frequency !== "custom" || selectedDateParam) {
+          try
           {
-            userid: user._id,
-            frequency,
-            selectedDate: selectedDateParam,
-            type,
+            res = await axios.post(
+              `${process.env.REACT_APP_API_BASE_URL}/transactions/get-transactions`,
+              {
+                userId: user._id,
+                frequency,
+                selectedDate: selectedDateParam,
+                type,
+              }
+            );
+            setAllTransaction(res?.data);
+            console.log("RES RES ",res?.data);
           }
-        );
-        console.log("res:", res);
-        setAllTransaction(res.data);
+          catch(error){
+            console.error("Error fetching from the API:", error);
+          }
+        }
+        // console.log("res:", res);
         setLoading(false);
       } catch (error) {
+        console.error("Error fetching transactions:", error);
         message.error("Unable to fetch transactions.");
         setLoading(false);
       }
@@ -128,7 +151,7 @@ const HomePage = () => {
           `${process.env.REACT_APP_API_BASE_URL}/transactions/add-transaction`,
           {
             ...values,
-            userid: user._id,
+            userId: user._id,
           }
         );
         message.success("Transaction Added Successfully");
@@ -139,6 +162,14 @@ const HomePage = () => {
     } catch (error) {
       setLoading(false);
       message.error("Please fill all fields correctly."); // Changed: Updated error message
+    }
+  };
+  // Function to handle the change of date range
+  const handleDateChange = (dates) => {
+    if (dates) {
+      setSelectedDate(dates); // Dates will be an array [startDate, endDate]
+    } else {
+      setSelectedDate([]); // Reset if no date range is selected
     }
   };
 
@@ -157,7 +188,8 @@ const HomePage = () => {
           {frequency === "custom" && (
             <RangePicker
               value={selectedDate}
-              onChange={(dates) => setSelectedDate(dates)}
+              onChange={handleDateChange}
+              format="YYYY-MM-DD"
             /> // Changed: Corrected date range picker logic
           )}
         </div>
@@ -194,11 +226,17 @@ const HomePage = () => {
       </div>
       <div className="content">
         {viewMode === "table" ? (
-          <Table columns={columns} dataSource={allTransaction} rowKey="_id" />
+          <Table
+            columns={columns}
+            dataSource={allTransaction}
+            rowKey="_id"
+            loading={loading}
+          />
         ) : (
           <Analytics allTransaction={allTransaction} />
         )}
       </div>
+
       <Modal
         title={editable ? "Edit Transaction" : "Add Transaction"}
         open={showModal}

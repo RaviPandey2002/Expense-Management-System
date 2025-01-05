@@ -20,7 +20,7 @@ const registerController = async (req, res) => {
     if (!newUser.name)
       return res.status(402).send({ message: "NO proper data send" });
     const result = await newUser.save();
-    console.log("RES:", result);
+    // console.log("RES:", result);
     res.status(201).json({
       success: true,
       result,
@@ -41,7 +41,7 @@ const loginController = async (req, res) => {
     if (!user) {
       return res.status(404).send("User Not Found");
     }
-    console.log("LogedIn successfully");
+    console.log("LoggedIn successfully");
     return res.status(200).json({
       success: true,
       user,

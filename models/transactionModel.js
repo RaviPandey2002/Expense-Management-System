@@ -3,7 +3,7 @@ const users = require("./userModel");
 
 const TransactionSchema = new mongoose.Schema(
   {
-    userid: {
+    userId: {
       type: mongoose.Types.ObjectId,
       ref: users,
       required: true,
@@ -20,7 +20,7 @@ const TransactionSchema = new mongoose.Schema(
       type: String,
       require: true,
     },
-    refrence: {
+    reference: {
       type: String,
     },
     description: {
@@ -31,9 +31,8 @@ const TransactionSchema = new mongoose.Schema(
       type: Date,
       require: true,
     },
-  },
-  { timestamps: true }
+  }
 );
 
-const Transaction = mongoose.model("TransactionModel", TransactionSchema);
+const Transaction = mongoose.model("Transaction", TransactionSchema);
 module.exports = Transaction;

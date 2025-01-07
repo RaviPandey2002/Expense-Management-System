@@ -34,8 +34,6 @@ const getAllTransaction = async (req, res) => {
     // Handling custom date range filter
     if (frequency === "custom" && selectedDate && selectedDate.length === 2) {
       const [startDate, endDate] = selectedDate;
-      console.log("startDate ", startDate);
-      console.log(" endDate ",  endDate);
 
       // Ensure that selectedDate is converted to JavaScript Date objects if it's in moment format
       const start = new Date(startDate);
@@ -51,9 +49,6 @@ const getAllTransaction = async (req, res) => {
 
     // Fetch transactions based on the query
     const Transactions = await Transaction.find(query);
-    console.log("query:", query);
-    // console.log("My Filtered Transactions:", Transactions);
-
     res.status(200).json(Transactions);
   } catch (error) {
     console.log(error);

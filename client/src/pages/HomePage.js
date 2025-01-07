@@ -246,11 +246,13 @@ const HomePage = () => {
       <div className="content">
         {viewMode === "table" ? (
           <Table
-            columns={columns}
-            dataSource={allTransaction}
-            rowKey="_id"
-            loading={loading}
-          />
+          columns={columns}
+          dataSource={allTransaction}
+          rowKey="_id"
+          loading={loading}
+          scroll={viewMode === "table" ? { y: 300 } : undefined}
+        />
+        
         ) : (
           <Analytics allTransaction={allTransaction} />
         )}

@@ -40,12 +40,12 @@
 }
 
 .filter-tab .ant-select-selector {
-  width: 150px !important;
+  width: 150px  ;
 }
 
 .login-page{
-  height: 100vh !important;
-  width: 100vw !important;
+  height: 100vh  ;
+  width: 100vw  ;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -67,7 +67,7 @@
 }
 
 .login-form .ant-form-item-label label {
-  color: #344265 !important;
+  color: #344265  ;
 }
 .login-form button {
   background-color: #344265;
@@ -79,18 +79,18 @@
   color: white;
 }
 .login-form a {
-  color: #344265 !important;
+  color: #344265  ;
 }
 
 .login-form a:hover {
-  color: black !important;
+  color: black  ;
 }
 
 .navbar {
-  background-color: #6f4e3742 !important;
+  background-color: #6f4e3742  ;
 }
 .navbar .navbar-brand {
-  color: #6f4e37 !important;
+  color: #6f4e37  ;
   font-weight: bold;
   font-size: 1.5rem;
 }
@@ -126,11 +126,11 @@
 }
 
 .register-form a {
-  color: #b87333 !important;
+  color: #b87333  ;
 }
 
 .register-form a:hover {
-  color: black !important;
+  color: black  ;
 }
 
 .register-form button {
@@ -139,7 +139,7 @@
 }
 
 .register-form input:focus {
-  border: 1px solid #b87333 !important;
+  border: 1px solid #b87333  ;
   color: #b87333;
 }
 .register-form button:hover {

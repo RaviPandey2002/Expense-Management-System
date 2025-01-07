@@ -1,6 +1,6 @@
 .login-page {
-  height: 100vh !important;
-  width: 100vw !important;
+  height: 100vh  ;
+  width: 100vw  ;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -22,7 +22,7 @@
 }
 
 .login-form .ant-form-item-label label {
-  color: #344265 !important;
+  color: #344265  ;
 }
 .login-form button {
   background-color: #344265;
@@ -34,9 +34,9 @@
   color: white;
 }
 .login-form a {
-  color: #344265 !important;
+  color: #344265  ;
 }
 
 .login-form a:hover {
-  color: black !important;
+  color: black  ;
 }

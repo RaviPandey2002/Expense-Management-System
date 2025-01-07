@@ -4,10 +4,10 @@ import Header from "./Header";
 
 const Layout = ({ children }) => {
   return (
-    <div className="d-flex flex-column">
+    <div className="d-flex flex-column h-100">
       <Header />
       <div
-        className="content py-4 px-5"  
+        className="content py-4 px-5 h-75"  
       >
         {children}
       </div>

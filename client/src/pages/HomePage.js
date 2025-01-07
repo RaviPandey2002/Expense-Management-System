@@ -183,155 +183,156 @@ const HomePage = () => {
   const defaultRange = [moment().subtract(1, "months"), moment()]; // Default range for "custom" option
 
   return (
-    <Layout>
-      {loading && <Spinner />}
-      <div className="filters">
-        <div>
-          <h6>Select Frequency</h6>
-          <Select
-            value={frequency}
-            onChange={handleFrequencyChange}
-            style={{ width: "80%" }}
-          >
-            <Select.Option value="7">LAST 1 Week</Select.Option>
-            <Select.Option value="30">LAST 1 Month</Select.Option>
-            <Select.Option value="365">LAST 1 Year</Select.Option>
-            <Select.Option value="custom">Custom</Select.Option>
-          </Select>
+      <Layout>
+        {loading && <Spinner />}
+        <div className="filters h-18 py-2">
+          <div>
+            <h6>Select Frequency</h6>
+            <Select
+              value={frequency}
+              onChange={handleFrequencyChange}
+              style={{ width: "80%" }}
+            >
+              <Select.Option value="7">LAST 1 Week</Select.Option>
+              <Select.Option value="30">LAST 1 Month</Select.Option>
+              <Select.Option value="365">LAST 1 Year</Select.Option>
+              <Select.Option value="custom">Custom</Select.Option>
+            </Select>
 
-          {frequency === "custom" && (
-            <>
-              <div>Please select a date range:</div>
-              <RangePicker
-                value={selectedDate || defaultRange}
-                onChange={handleDateChange}
-                format="YYYY-MM-DD"
-                placeholder={["Start Date", "End Date"]}
-              />
-            </>
+            {frequency === "custom" && (
+              <>
+                <div>Please select a date range:</div>
+                <RangePicker
+                  value={selectedDate || defaultRange}
+                  onChange={handleDateChange}
+                  format="YYYY-MM-DD"
+                  placeholder={["Start Date", "End Date"]}
+                />
+              </>
+            )}
+          </div>
+          <div className="filter-tab">
+            <h6>Select Type</h6>
+            <Select value={type} onChange={(value) => setType(value)}>
+              <Select.Option value="all">ALL</Select.Option>
+              <Select.Option value="income">INCOME</Select.Option>
+              <Select.Option value="expense">EXPENSE</Select.Option>
+            </Select>
+          </div>
+          <div className="switch-icons">
+            <UnorderedListOutlined
+              className={`mx-2 ${
+                viewMode === "table" ? "active-icon" : "inactive-icon"
+              }`} // Changed: Updated variable to "viewMode"
+              onClick={() => setViewMode("table")}
+            />
+            <AreaChartOutlined
+              className={`mx-2 ${
+                viewMode === "analytics" ? "active-icon" : "inactive-icon"
+              }`} // Changed: Updated variable to "viewMode"
+              onClick={() => setViewMode("analytics")}
+            />
+          </div>
+          <div>
+            <button
+              className="btn btn-primary"
+              onClick={() => setShowModal(true)}
+            >
+              Add New
+            </button>
+          </div>
+        </div>
+
+        <div className="content">
+          {viewMode === "table" ? (
+            <Table
+              columns={columns}
+              dataSource={allTransaction}
+              rowKey="_id"
+              loading={loading}
+              scroll={viewMode === "table" ? { y: 350 } : undefined}
+              pagination={false}
+              size={"medium"}
+            />
+          ) : (
+            <Analytics allTransaction={allTransaction} />
           )}
         </div>
-        <div className="filter-tab">
-          <h6>Select Type</h6>
-          <Select value={type} onChange={(value) => setType(value)}>
-            <Select.Option value="all">ALL</Select.Option>
-            <Select.Option value="income">INCOME</Select.Option>
-            <Select.Option value="expense">EXPENSE</Select.Option>
-          </Select>
-        </div>
-        <div className="switch-icons">
-          <UnorderedListOutlined
-            className={`mx-2 ${
-              viewMode === "table" ? "active-icon" : "inactive-icon"
-            }`} // Changed: Updated variable to "viewMode"
-            onClick={() => setViewMode("table")}
-          />
-          <AreaChartOutlined
-            className={`mx-2 ${
-              viewMode === "analytics" ? "active-icon" : "inactive-icon"
-            }`} // Changed: Updated variable to "viewMode"
-            onClick={() => setViewMode("analytics")}
-          />
-        </div>
-        <div>
-          <button
-            className="btn btn-primary"
-            onClick={() => setShowModal(true)}
-          >
-            Add New
-          </button>
-        </div>
-      </div>
-      
-      <div className="content">
-        {viewMode === "table" ? (
-          <Table
-          columns={columns}
-          dataSource={allTransaction}
-          rowKey="_id"
-          loading={loading}
-          scroll={viewMode === "table" ? { y: 300 } : undefined}
-        />
-        
-        ) : (
-          <Analytics allTransaction={allTransaction} />
-        )}
-      </div>
 
-      <Modal
-        title={editable ? "Edit Transaction" : "Add Transaction"}
-        open={showModal}
-        onCancel={() => setShowModal(false)}
-        footer={false}
-      >
-        <Form
-          layout="vertical"
-          onFinish={handleSubmit}
-          initialValues={editable}
+        <Modal
+          title={editable ? "Edit Transaction" : "Add Transaction"}
+          open={showModal}
+          onCancel={() => setShowModal(false)}
+          footer={false}
         >
-          <Form.Item
-            label="Amount"
-            name="amount"
-            rules={[{ required: true, message: "Amount is required" }]}
+          <Form
+            layout="vertical"
+            onFinish={handleSubmit}
+            initialValues={editable}
           >
-            <Input type="text" />
-          </Form.Item>
+            <Form.Item
+              label="Amount"
+              name="amount"
+              rules={[{ required: true, message: "Amount is required" }]}
+            >
+              <Input type="text" />
+            </Form.Item>
 
-          <Form.Item
-            label="Type"
-            name="type"
-            rules={[{ required: true, message: "Type is required" }]}
-          >
-            <Select>
-              <Select.Option value="income">Income</Select.Option>
-              <Select.Option value="expense">Expense</Select.Option>
-            </Select>
-          </Form.Item>
+            <Form.Item
+              label="Type"
+              name="type"
+              rules={[{ required: true, message: "Type is required" }]}
+            >
+              <Select>
+                <Select.Option value="income">Income</Select.Option>
+                <Select.Option value="expense">Expense</Select.Option>
+              </Select>
+            </Form.Item>
 
-          <Form.Item
-            label="Category"
-            name="category"
-            rules={[{ required: true, message: "Category is required" }]}
-          >
-            <Select>
-              <Select.Option value="salary">Salary</Select.Option>
-              <Select.Option value="tip">Tip</Select.Option>
-              <Select.Option value="project">Project</Select.Option>
-              <Select.Option value="food">Food</Select.Option>
-              <Select.Option value="movie">Movie</Select.Option>
-              <Select.Option value="bills">Bills</Select.Option>
-              <Select.Option value="medical">Medical</Select.Option>
-              <Select.Option value="fee">Fee</Select.Option>
-              <Select.Option value="tax">TAX</Select.Option>
-            </Select>
-          </Form.Item>
+            <Form.Item
+              label="Category"
+              name="category"
+              rules={[{ required: true, message: "Category is required" }]}
+            >
+              <Select>
+                <Select.Option value="salary">Salary</Select.Option>
+                <Select.Option value="tip">Tip</Select.Option>
+                <Select.Option value="project">Project</Select.Option>
+                <Select.Option value="food">Food</Select.Option>
+                <Select.Option value="movie">Movie</Select.Option>
+                <Select.Option value="bills">Bills</Select.Option>
+                <Select.Option value="medical">Medical</Select.Option>
+                <Select.Option value="fee">Fee</Select.Option>
+                <Select.Option value="tax">TAX</Select.Option>
+              </Select>
+            </Form.Item>
 
-          <Form.Item label="Date" name="date">
-            <DatePicker />
-          </Form.Item>
+            <Form.Item label="Date" name="date">
+              <DatePicker />
+            </Form.Item>
 
-          <Form.Item
-            label="Reference"
-            name="reference"
-            rules={[{ required: true, message: "Reference is required" }]}
-          >
-            <Input type="text" />
-          </Form.Item>
+            <Form.Item
+              label="Reference"
+              name="reference"
+              rules={[{ required: true, message: "Reference is required" }]}
+            >
+              <Input type="text" />
+            </Form.Item>
 
-          <Form.Item label="Description" name="description">
-            <Input type="text" />
-          </Form.Item>
+            <Form.Item label="Description" name="description">
+              <Input type="text" />
+            </Form.Item>
 
-          <Form.Item>
-            <div className="d-flex justify-content-end">
-              <Button type="primary" htmlType="submit">
-                SAVE
-              </Button>
-            </div>
-          </Form.Item>
-        </Form>
-      </Modal>
-    </Layout>
+            <Form.Item>
+              <div className="d-flex justify-content-end">
+                <Button type="primary" htmlType="submit">
+                  SAVE
+                </Button>
+              </div>
+            </Form.Item>
+          </Form>
+        </Modal>
+      </Layout>
   );
 };
 

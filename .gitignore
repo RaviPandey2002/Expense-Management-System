@@ -44,3 +44,6 @@ yarn-error.log*
 
 # VS Code files
 .vscode/
+
+# For client .env file
+client/.env

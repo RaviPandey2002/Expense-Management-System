@@ -1,6 +1,5 @@
 const { default: mongoose } = require("mongoose");
 const Transaction = require("../models/transactionModel");
-const moment = require("moment");
 
 const getAllTransaction = async (req, res) => {
   try {

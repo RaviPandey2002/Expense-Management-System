@@ -22,6 +22,7 @@ import Spinner from "./../components/Spinner";
 import moment from "moment";
 import Analytics from "../components/Analytics";
 import { CalendarOutlined, ClockCircleOutlined } from "@ant-design/icons";
+import ErrorBoundary from "../components/erorBoundry";
 const { RangePicker } = DatePicker;
 
 const HomePage = () => {
@@ -44,6 +45,12 @@ const HomePage = () => {
       dataIndex: "type",
     },
     {
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+      render: (text) => new Date(text).toLocaleDateString(),
+    },
+    {
       title: "Category",
       dataIndex: "category",
     },
@@ -51,12 +58,7 @@ const HomePage = () => {
       title: "Reference",
       dataIndex: "reference",
     },
-    {
-      title: "Date",
-      dataIndex: "date",
-      key: "date",
-      render: (text) => new Date(text).toLocaleDateString(),
-    },
+
     {
       title: "Actions",
       render: (text, record) => (
@@ -65,6 +67,7 @@ const HomePage = () => {
             onClick={() => {
               setEditable(record);
               setShowModal(true);
+              console.log("Action Record", record);
             }}
           />
           <DeleteOutlined
@@ -100,6 +103,7 @@ const HomePage = () => {
               }
             );
             setAllTransaction(res?.data);
+            console.log("Transactions added successfully!!");
           } catch (error) {
             console.error("Error fetching from the API:", error);
           }
@@ -135,16 +139,26 @@ const HomePage = () => {
   const handleSubmit = async (values) => {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
+      if (!user || !user._id) {
+        message.error("User data is missing.");
+        setLoading(false);
+        return;
+      }
+      console.log("editable", editable);
       setLoading(true);
       if (editable) {
-        await axios.post(
-          `${process.env.REACT_APP_API_BASE_URL}/transactions/edit-transaction`,
-          {
-            payload: { ...values, userId: user._id },
-            transactionId: editable._id,
-          }
-        );
-        message.success("transaction Updated Successfully");
+        try {
+          await axios.post(
+            `${process.env.REACT_APP_API_BASE_URL}/transactions/edit-transaction`,
+            {
+              payload: { ...values, userId: user._id },
+              transactionId: editable._id,
+            }
+          );
+          message.success("Transaction Updated Successfully");
+        } catch (err) {
+          console.log("Error in Edit transaction Error:", err);
+        }
       } else {
         await axios.post(
           `${process.env.REACT_APP_API_BASE_URL}/transactions/add-transaction`,
@@ -157,10 +171,11 @@ const HomePage = () => {
       }
       setShowModal(false);
       setEditable(null);
-      setLoading(false);
     } catch (error) {
       setLoading(false);
       message.error("Please fill all fields correctly."); // Changed: Updated error message
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -180,95 +195,98 @@ const HomePage = () => {
     }
   };
 
-  const defaultRange = [moment().subtract(1, "months"), moment()]; // Default range for "custom" option
-
   return (
-      <Layout>
-        {loading && <Spinner />}
-        <div className="filters h-18 py-2">
-          <div>
-            <h6>Select Frequency</h6>
-            <Select
-              value={frequency}
-              onChange={handleFrequencyChange}
-              style={{ width: "80%" }}
-            >
-              <Select.Option value="7">LAST 1 Week</Select.Option>
-              <Select.Option value="30">LAST 1 Month</Select.Option>
-              <Select.Option value="365">LAST 1 Year</Select.Option>
-              <Select.Option value="custom">Custom</Select.Option>
-            </Select>
+    <Layout>
+      {loading && <Spinner />}
+      <div className="filters h-18 py-2">
+        <div>
+          <h6>Select Frequency</h6>
+          <Select
+            value={frequency}
+            onChange={handleFrequencyChange}
+            style={{ width: "80%" }}
+          >
+            <Select.Option value="7">LAST 1 Week</Select.Option>
+            <Select.Option value="30">LAST 1 Month</Select.Option>
+            <Select.Option value="365">LAST 1 Year</Select.Option>
+            <Select.Option value="custom">Custom</Select.Option>
+          </Select>
 
-            {frequency === "custom" && (
-              <>
-                <div>Please select a date range:</div>
-                <RangePicker
-                  value={selectedDate || defaultRange}
-                  onChange={handleDateChange}
-                  format="YYYY-MM-DD"
-                  placeholder={["Start Date", "End Date"]}
-                />
-              </>
-            )}
-          </div>
-          <div className="filter-tab">
-            <h6>Select Type</h6>
-            <Select value={type} onChange={(value) => setType(value)}>
-              <Select.Option value="all">ALL</Select.Option>
-              <Select.Option value="income">INCOME</Select.Option>
-              <Select.Option value="expense">EXPENSE</Select.Option>
-            </Select>
-          </div>
-          <div className="switch-icons">
-            <UnorderedListOutlined
-              className={`mx-2 ${
-                viewMode === "table" ? "active-icon" : "inactive-icon"
-              }`} // Changed: Updated variable to "viewMode"
-              onClick={() => setViewMode("table")}
-            />
-            <AreaChartOutlined
-              className={`mx-2 ${
-                viewMode === "analytics" ? "active-icon" : "inactive-icon"
-              }`} // Changed: Updated variable to "viewMode"
-              onClick={() => setViewMode("analytics")}
-            />
-          </div>
-          <div>
-            <button
-              className="btn btn-primary"
-              onClick={() => setShowModal(true)}
-            >
-              Add New
-            </button>
-          </div>
-        </div>
-
-        <div className="content">
-          {viewMode === "table" ? (
-            <Table
-              columns={columns}
-              dataSource={allTransaction}
-              rowKey="_id"
-              loading={loading}
-              scroll={viewMode === "table" ? { y: 350 } : undefined}
-              pagination={false}
-              size={"medium"}
-            />
-          ) : (
-            <Analytics allTransaction={allTransaction} />
+          {frequency === "custom" && (
+            <>
+              <div>Please select a date range:</div>
+              <RangePicker
+                value={selectedDate}
+                onChange={handleDateChange}
+                format="YYYY-MM-DD"
+                placeholder={["Start Date", "End Date"]}
+              />
+            </>
           )}
         </div>
+        <div className="filter-tab">
+          <h6>Select Type</h6>
+          <Select value={type} onChange={(value) => setType(value)}>
+            <Select.Option value="all">ALL</Select.Option>
+            <Select.Option value="income">INCOME</Select.Option>
+            <Select.Option value="expense">EXPENSE</Select.Option>
+          </Select>
+        </div>
+        <div className="switch-icons">
+          <UnorderedListOutlined
+            className={`mx-2 ${
+              viewMode === "table" ? "active-icon" : "inactive-icon"
+            }`} // Changed: Updated variable to "viewMode"
+            onClick={() => setViewMode("table")}
+          />
+          <AreaChartOutlined
+            className={`mx-2 ${
+              viewMode === "analytics" ? "active-icon" : "inactive-icon"
+            }`} // Changed: Updated variable to "viewMode"
+            onClick={() => setViewMode("analytics")}
+          />
+        </div>
+        <div>
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowModal(true)}
+          >
+            Add New
+          </button>
+        </div>
+      </div>
 
+      <div className="content">
+        {viewMode === "table" ? (
+          <Table
+            columns={columns}
+            dataSource={allTransaction}
+            rowKey="_id"
+            loading={loading}
+            scroll={viewMode === "table" ? { y: 350 } : undefined}
+            size={"medium"}
+          />
+        ) : (
+          <Analytics allTransaction={allTransaction} />
+        )}
+      </div>
+      <ErrorBoundary>
         <Modal
           title={editable ? "Edit Transaction" : "Add Transaction"}
           open={showModal}
           onCancel={() => setShowModal(false)}
           footer={false}
+          centered={true}
+          content={editable}
         >
           <Form
             layout="vertical"
             onFinish={handleSubmit}
-            initialValues={editable}
+            initialValues={
+              console.log("EDI date", typeof editable.date) || editable
+                ? editable
+                : {}
+            }
           >
             <Form.Item
               label="Amount"
@@ -308,7 +326,10 @@ const HomePage = () => {
             </Form.Item>
 
             <Form.Item label="Date" name="date">
-              <DatePicker />
+              <DatePicker
+                value={editable?.date ? moment(editable?.date) : moment()}
+                format="YYYY-MM-DD"
+              />
             </Form.Item>
 
             <Form.Item
@@ -326,13 +347,14 @@ const HomePage = () => {
             <Form.Item>
               <div className="d-flex justify-content-end">
                 <Button type="primary" htmlType="submit">
-                  SAVE
+                  {editable ? "Update" : "Save"}
                 </Button>
               </div>
             </Form.Item>
           </Form>
         </Modal>
-      </Layout>
+      </ErrorBoundary>
+    </Layout>
   );
 };
 

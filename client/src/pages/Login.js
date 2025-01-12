@@ -13,8 +13,7 @@ const Login = () => {
   const submitHandler = async (values) => {
     try {
       setLoading(true);
-      console.log(`${process.env.REACT_APP_API_BASE_URL}`)
-      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/users/login`,values);
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/users/login`, values);
 
       // console.log("response.login",response);
       const { data } = response

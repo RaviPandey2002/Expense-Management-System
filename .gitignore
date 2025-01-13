@@ -47,3 +47,5 @@ yarn-error.log*
 
 # For client .env file
 client/.env
+client/build
+.vercel

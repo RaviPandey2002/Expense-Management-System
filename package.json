@@ -4,12 +4,9 @@
   "description": "expanse tracker app",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "server": "nodemon server.js",
-    "client": "npm start --prefix client",
-    "dev": "concurrently \"npm start\" \"npm run client\" ",
-    "build": "cd frontend && npm install && npm run build && cd ../backend && npm install"
-
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "build": "echo 'No build script needed for the backend.'"
   },
   "keywords": [],
   "author": "",

@@ -33,12 +33,12 @@ const TableHeader = ({ setType,
 
     return <>
         <div className="filters h-18 py-2">
-            <div>
+            <div className="mb-2 frequency">
                 <h6>Select Frequency</h6>
                 <Select
                     value={frequency}
                     onChange={handleFrequencyChange}
-                    style={{ width: "80%" }}
+                    className="w-100"
                 >
                     <Select.Option value="7">Last 1 Week</Select.Option>
                     <Select.Option value="30">Last 1 Month</Select.Option>
@@ -58,16 +58,16 @@ const TableHeader = ({ setType,
                     </>
                 )}
             </div>
-            <div className="filter-tab">
+            <div className="filter-tab mb-2">
                 <h6>Select Type</h6>
-                <Select value={type} onChange={(value) => setType(value)}>
-                    <Select.Option value="all">ALL</Select.Option>
+                <Select value={type} onChange={(value) => setType(value)}  >
+                    <Select.Option value="all">ALL</Select.Option> 
                     <Select.Option value="income">INCOME</Select.Option>
                     <Select.Option value="expense">EXPENSE</Select.Option>
                 </Select>
             </div>
 
-            <div>
+            <div className="mb-2">
                 <h6>View mode</h6>
                 <div className="switch-icons">
                     <UnorderedListOutlined
@@ -82,9 +82,9 @@ const TableHeader = ({ setType,
                     />
                 </div>
             </div>
-            <div>
+            <div className="add-btn">
                 <button
-                    className="btn btn-primary"
+                    className="btn btn-primary my-btn"
                     onClick={() => {
                         setShowModal(true);
                         setEditable(null)

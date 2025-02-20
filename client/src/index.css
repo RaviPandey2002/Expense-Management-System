@@ -4,12 +4,12 @@
   box-sizing: border-box;
 }
 
-body{
-  height:100vh;
+body {
+  height: 100vh;
 }
 
-#root{
-  height:100%;
+#root {
+  height: 100%;
 }
 
 /* Transaction page */
@@ -21,18 +21,24 @@ body{
   box-shadow: 0 0 3px gray;
   margin-bottom: 10px;
 }
-/* Transaction page */
+
+.my-btn {
+  font-size: 0.88rem;
+  padding: 6px 8px;
+  margin-top: 15px;
+}
 
 /* antd icons */
 
 .switch-icons {
-  border: 1px solid rgba(0, 0, 0, 0.677);
-  border-radius: 5px;
-  padding: 10px 15px;
+  border: 1px solid rgba(173, 172, 172, 0.677);
+  border-radius: 3px;
+  padding-top: 1px;
+  padding-bottom: 5px;
 }
 
 .anticon svg {
-  font-size: 20px;
+  font-size: 19px;
   cursor: pointer;
 }
 
@@ -44,12 +50,16 @@ body{
 }
 
 .filter-tab .ant-select-selector {
-  width: 150px  ;
+  width: 150px;
 }
 
-.login-page{
-  height: 100vh  ;
-  width: 100vw  ;
+.ant-select {
+  padding-right: 4px;
+}
+
+.login-page {
+  height: 100vh;
+  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -71,7 +81,7 @@ body{
 }
 
 .login-form .ant-form-item-label label {
-  color: #344265  ;
+  color: #344265;
 }
 .login-form button {
   background-color: #344265;
@@ -83,18 +93,18 @@ body{
   color: white;
 }
 .login-form a {
-  color: #344265  ;
+  color: #344265;
 }
 
 .login-form a:hover {
-  color: black  ;
+  color: black;
 }
 
 .navbar {
-  background-color: #6f4e3742  ;
+  background-color: #6f4e3742;
 }
 .navbar .navbar-brand {
-  color: #6f4e37  ;
+  color: #6f4e37;
   font-weight: bold;
   font-size: 1.5rem;
 }
@@ -130,11 +140,11 @@ body{
 }
 
 .register-form a {
-  color: #b87333  ;
+  color: #b87333;
 }
 
 .register-form a:hover {
-  color: black  ;
+  color: black;
 }
 
 .register-form button {
@@ -143,10 +153,72 @@ body{
 }
 
 .register-form input:focus {
-  border: 1px solid #b87333  ;
+  border: 1px solid #b87333;
   color: #b87333;
 }
 .register-form button:hover {
   background-color: black;
   color: white;
+}
+
+.ant-table th {
+  white-space: nowrap;
+}
+
+h6 {
+  font-size: clamp(0.8rem, 100%, 1rem);
+  font-weight: 550;
+}
+
+@media (max-width: 600px) {
+  body {
+    font-size: 12px;
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    box-shadow: 0 0 3px gray;
+    margin-bottom: 10px;
+  }
+
+  .add-btn {
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  .my-btn {
+    font-size: 0.8rem;
+    padding: 6px 8px;
+    float: right;
+    margin-top: -10px;
+    margin-bottom: 5px;
+  }
+}
+
+/* Decrease font size for smaller screens */
+@media (max-width: 768px) {
+  .ant-table th,
+  .ant-table td {
+    font-size: 13px; /* Smaller font size for mobile screens */
+  }
+}
+
+@media (max-width: 576px) {
+  .ant-table th,
+  .ant-table td {
+    font-size: 11px; /* Even smaller font size for very small screens */
+  }
+}
+
+@media (max-width: 325px) {
+  .frequency {
+    flex-grow: 1;
+  }
+
+  .frequency select {
+  }
 }

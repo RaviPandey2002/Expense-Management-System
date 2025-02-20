@@ -171,10 +171,11 @@ const HomePage = () => {
                         <Table
                             columns={columns}
                             dataSource={allTransaction}
+                            responsive={true}
                             rowKey="_id"
                             loading={loading}
-                            scroll={viewMode === "table" ? { y: 350 } : undefined}
-                            size={"medium"}
+                            scroll={viewMode === 'table' ? { x: 'max-content' , y: 350 } : undefined}
+                            size="medium"
                             locale={{ emptyText: "No transactions available" }}
                         />
                     )

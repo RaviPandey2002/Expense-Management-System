@@ -15,7 +15,6 @@ const Login = () => {
       setLoading(true);
       const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/users/login`, values);
 
-      // console.log("response.login",response);
       const { data } = response
       setLoading(false);
       message.success("login success");
@@ -26,8 +25,8 @@ const Login = () => {
       navigate("/");
     } catch (error) {
       setLoading(false);
-      console.error("Login failed:", error);
-      message.error("Something went wrong during login. Please try again.");
+      console.error("Login failed:", error?.response?.data?.message);
+      message.error(`Error while login. Error: ${error?.response?.data?.message}`);
     }
   };
 
@@ -58,7 +57,7 @@ const Login = () => {
               </Form.Item>
               <div className="d-flex justify-content-between">
                 <Link to="/register">
-                  Not a user ? Click Here to regsiter !
+                  Not a user ? Click Here to Register !
                 </Link>
                 <button className="btn">Login</button>
               </div>

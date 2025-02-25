@@ -1,11 +1,12 @@
 const app = require("./app");
 const dotenv = require("dotenv");
 const connectDB = require("./config/connectDb");
-dotenv.config();
 
+dotenv.config({
+  path: "../server/.env"
+});
 
 const PORT = process.env.PORT || 6000;
-
 connectDB();
 
 //listen server

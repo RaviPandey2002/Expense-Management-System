@@ -11,15 +11,21 @@ const Register = () => {
   const submitHandler = async (values) => {
     try {
       setLoading(true);
-      await axios.post("http://localhost:8080/api/v1/users/register", values);
-      message.success("Registeration Successfully");
+      const URL = `${process.env.REACT_APP_API_BASE_URL}/users/register`;
+      console.log("URL:", URL);
+
+      await axios.post(URL, values);
+
+      message.success("Registered Successfully");
       setLoading(false);
       navigate("/login");
 
       console.log("FORM data submitted!");
     } catch (error) {
       setLoading(false);
-      message.error("something went wrong");
+      console.log('Error while registering user. Error: ', error?.response?.data?.message || error.message)
+      const msg = error?.response?.data?.message || "Something went wrong!!"
+      message.error(msg);
     }
   };
 
@@ -50,7 +56,7 @@ const Register = () => {
           </Form.Item>
           <div className="d-flex justify-content-between">
             <Link to="/login">Already Register? login here!</Link>
-            <button className="btn ">Resgiter</button>
+            <button className="btn ">Register</button>
           </div>
         </Form>
       </div>

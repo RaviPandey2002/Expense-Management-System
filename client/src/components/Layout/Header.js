@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { message } from "antd";
+import axios from "axios";
 
 const Header = () => {
   const [loginUser, setLoginUser] = useState("");
@@ -13,7 +14,12 @@ const Header = () => {
     }
   }, []);
 
-  const logoutHandler = () => {
+  const logoutHandler = async () => {
+    try {
+      await axios.post(`${process.env.REACT_APP_API_BASE_URL}/users/logout`);
+    } catch (_) {
+      // proceed with client-side logout even if server call fails
+    }
     localStorage.removeItem("user");
     message.success("Logout Successfully");
     navigate("/login");

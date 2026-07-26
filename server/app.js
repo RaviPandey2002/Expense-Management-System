@@ -2,22 +2,32 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const colors = require("colors");
+const cookieParser = require("cookie-parser");
 const path = require("path");
 
 const app = express();
 
 app.use(morgan("dev"));
 app.use(express.json());
-app.use(cors());
+
+console.log(process.env.CLIENT_URL || "http://localhost:3001")
+
+app.use(cors({
+  origin: process.env.CLIENT_URL || "http://localhost:3000",
+  credentials: true,
+}));
+app.use(cookieParser());
 
 // # ROUTES
 
-app.use("/testing",(req,res)=>{ 
+const authMiddleware = require("./middleware/authMiddleware");
+
+app.use("/testing",(req,res)=>{
   console.log("Testing Route working!!");
   return res.status(200).send({message:"Test successful!"});
 });
 app.use("/api/v1/users", require("./routes/userRoute"));
-app.use("/api/v1/transactions", require("./routes/transactionRoutes"));
+app.use("/api/v1/transactions", authMiddleware, require("./routes/transactionRoutes"));
 
 //static files
 app.use(express.static(path.join(__dirname, "./client/build")));

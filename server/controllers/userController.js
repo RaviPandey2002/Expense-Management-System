@@ -1,5 +1,6 @@
 const User = require("../models/userModel");
-const bcrypt = require('bcryptjs');
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 //Register Callback
 const registerController = async (req, res) => {
@@ -22,14 +23,12 @@ const registerController = async (req, res) => {
       password: hashedPassword,
     });
 
-    if (!newUser.name)
-      return res.status(402).send({ message: "Every Field id required!!" });
-
     const result = await newUser.save();
+    const { password: _, ...safeResult } = result.toObject();
 
     res.status(201).json({
       success: true,
-      result,
+      result: safeResult,
     });
   } catch (error) {
     res.status(400).json({
@@ -43,36 +42,48 @@ const registerController = async (req, res) => {
 const loginController = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).lean();
     if (!user) {
-      return res.status(404).send(
-        {
-          status: false,
-          message: "User Not Found"
-        }
-      );
+      return res.status(404).json({
+        success: false,
+        message: "User Not Found",
+      });
     }
 
-    const varifyPassword = await bcrypt.compare(password, user.password);
-
-    if (!varifyPassword) {
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
       return res.status(401).json({
         success: false,
-        message: "Invalid Password!"
-      })
+        message: "Invalid Password!",
+      });
     }
 
-    console.log("LoggedIn successfully");
+    const { password: _, ...safeUser } = user;
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
     return res.status(200).json({
       success: true,
-      user,
+      user: safeUser,
     });
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: `Something went wrong while login-in controller. Error: ${error?.response?.data?.message} `,
+      message: `Something went wrong while logging in. Error: ${error.message}`,
     });
   }
 };
 
-module.exports = { loginController, registerController };
+const logoutController = (req, res) => {
+  res.clearCookie("token");
+  return res.status(200).json({ success: true, message: "Logged out successfully" });
+};
+
+module.exports = { loginController, registerController, logoutController };

@@ -22,10 +22,11 @@ const HomePage = () => {
     const [loading, setLoading] = useState(false);
     const [allTransaction, setAllTransaction] = useState([]);
     const [frequency, setFrequency] = useState("7");
-    const [selectedDate, setSelectedDate] = useState([]);
+    const [selectedDate, setSelectedDate] = useState(null);
     const [type, setType] = useState("all");
     const [viewMode, setViewMode] = useState("table");
     const [editable, setEditable] = useState(null);
+    const [refreshKey, setRefreshKey] = useState(0);
     const columns = [
         {
             title: 'Index',
@@ -122,7 +123,7 @@ const HomePage = () => {
             }
         };
         getAllTransactions();
-    }, [frequency, selectedDate, type]);
+    }, [frequency, selectedDate, type, refreshKey]);
 
     const handleDelete = async (record) => {
         Modal.confirm({
@@ -140,6 +141,7 @@ const HomePage = () => {
                     );
                     setLoading(false);
                     message.success("Transaction Deleted!");
+                    setRefreshKey((k) => k + 1);
                 } catch (error) {
                     setLoading(false);
                     message.error("Unable to delete transaction.");
@@ -189,7 +191,7 @@ const HomePage = () => {
                     setShowModal={setShowModal}
                     editable={editable}
                     setEditable={setEditable}
-                    setLoading={setLoading}
+                    onSuccess={() => setRefreshKey((k) => k + 1)}
                 />
             </ErrorBoundary>
         </Layout>

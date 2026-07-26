@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Modal, Form, Select, Input, Button, DatePicker, message } from "antd";
 import moment from "moment";
 import axios from "axios";
+import CATEGORIES from "../utils/categories";
 
-const TransactionModal = ({ showModal, setShowModal, editable, setEditable, setLoading }) => {
+const TransactionModal = ({ showModal, setShowModal, editable, setEditable, onSuccess }) => {
     const [category, setCategory] = useState("");
     const [isOtherCategory, setIsOtherCategory] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [form] = Form.useForm()
 
 
@@ -25,41 +27,33 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, setL
 
 
     const handleSubmit = async (values) => {
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user || !user._id) {
+            message.error("User data is missing.");
+            return;
+        }
+
+        const categoryValue = isOtherCategory
+            ? values.customCategory
+            : values.category;
+
+        const descriptionValue = values?.description || "No description";
+
+        setLoading(true);
         try {
-            const user = JSON.parse(localStorage.getItem("user"));
-            if (!user || !user._id) {
-                message.error("User data is missing.");
-                setLoading(false);
-                return;
-            }
-            setLoading(true);
-
-            // Use the category value (either selected or custom)
-            const categoryValue = isOtherCategory
-                ? values.customCategory
-                : values.category;
-
-            const descriptionValue = values?.description
-                ? values.description
-                : "No description"
             if (editable) {
-                try {
-                    await axios.post(
-                        `${process.env.REACT_APP_API_BASE_URL}/transactions/edit-transaction`,
-                        {
-                            payload: {
-                                ...values,
-                                category: categoryValue,
-                                userId: user._id
-                            },
-                            transactionId: editable._id,
-                        }
-                    );
-                    message.success("Transaction Updated Successfully");
-                } catch (err) {
-                    message.error("Failed to update transaction.");
-                    console.log("Error in Edit transaction Error:", err);
-                }
+                await axios.post(
+                    `${process.env.REACT_APP_API_BASE_URL}/transactions/edit-transaction`,
+                    {
+                        payload: {
+                            ...values,
+                            category: categoryValue,
+                            userId: user._id,
+                        },
+                        transactionId: editable._id,
+                    }
+                );
+                message.success("Transaction Updated Successfully");
             } else {
                 await axios.post(
                     `${process.env.REACT_APP_API_BASE_URL}/transactions/add-transaction`,
@@ -74,9 +68,10 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, setL
             }
             setShowModal(false);
             setEditable(null);
-            form.resetFields(); // Clear form after submission
+            form.resetFields();
+            onSuccess();
         } catch (error) {
-            message.error("Please fill all fields correctly."); // Changed: Updated error message
+            message.error("Please fill all fields correctly.");
         } finally {
             setLoading(false);
         }
@@ -94,6 +89,7 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, setL
     return (
         <Modal
             title={editable ? "Edit Transaction" : "Add Transaction"}
+            confirmLoading={loading}
             open={showModal}
             onCancel={() => {
                 setShowModal(false);
@@ -133,13 +129,11 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, setL
                     rules={[{ required: true, message: "Category is required" }]}
                 >
                     <Select value={category} onChange={handleCategoryChange}>
-                        <Select.Option value="salary">Salary</Select.Option>
-                        <Select.Option value="groceries">Groceries</Select.Option>
-                        <Select.Option value="food">Food</Select.Option>
-                        <Select.Option value="movie">Movie</Select.Option>
-                        <Select.Option value="bills">Bills</Select.Option>
-                        <Select.Option value="fee">Fee</Select.Option>
-                        <Select.Option value="other">Other</Select.Option>
+                        {CATEGORIES.map((cat) => (
+                            <Select.Option key={cat} value={cat}>
+                                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                            </Select.Option>
+                        ))}
                     </Select>
                 </Form.Item>
 

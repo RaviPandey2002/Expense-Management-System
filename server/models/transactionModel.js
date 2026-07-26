@@ -10,23 +10,23 @@ const TransactionSchema = new mongoose.Schema(
     },
     amount: {
       type: Number,
-      require: true,
+      required: true,
     },
     type: {
       type: String,
-      require: true,
+      required: true,
     },
     category: {
       type: String,
-      require: true,
+      required: true,
     },
     description: {
       type: String,
-      require: true,
+      required: true,
     },
     date: {
       type: Date,
-      require: true,
+      required: true,
     },
   }
 );

@@ -1,18 +1,8 @@
 import React from "react";
 import { Progress } from "antd";
+import CATEGORIES from "../utils/categories";
 const Analytics = ({ allTransaction }) => {
-  // category
-  const categories = [
-    "salary",
-    "tip",
-    "project",
-    "food",
-    "movie",
-    "bills",
-    "medical",
-    "fee",
-    "tax",
-  ];
+  const categories = CATEGORIES.filter((c) => c !== "other");
 
   // total transaction
   const totalTransaction = allTransaction.length;

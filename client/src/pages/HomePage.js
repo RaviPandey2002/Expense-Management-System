@@ -19,7 +19,8 @@ import Spinner from "./../components/Spinner";
 
 const HomePage = () => {
     const [showModal, setShowModal] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [fetchLoading, setFetchLoading] = useState(false);
+    const [deleteLoading, setDeleteLoading] = useState(false);
     const [allTransaction, setAllTransaction] = useState([]);
     const [frequency, setFrequency] = useState("7");
     const [selectedDate, setSelectedDate] = useState(null);
@@ -87,7 +88,7 @@ const HomePage = () => {
         const getAllTransactions = async () => {
             try {
                 const user = JSON.parse(localStorage.getItem("user"));
-                setLoading(true);
+                setFetchLoading(true);
                 const selectedDateParam =
                     frequency === "custom" && selectedDate?.length
                         ? selectedDate
@@ -115,11 +116,11 @@ const HomePage = () => {
                         console.error("Error fetching from the API:", error);
                     }
                 }
-                setLoading(false);
+                setFetchLoading(false);
             } catch (error) {
                 console.error("Error fetching transactions:", error);
                 message.error(`Failed to fetch transactions: ${error.response?.data?.message || error.message}`);
-                setLoading(false);
+                setFetchLoading(false);
             }
         };
         getAllTransactions();
@@ -132,18 +133,18 @@ const HomePage = () => {
             okType: "danger",
             onOk: async () => {
                 try {
-                    setLoading(true);
+                    setDeleteLoading(true);
                     await axios.post(
                         `${process.env.REACT_APP_API_BASE_URL}/transactions/delete-transaction`,
                         {
                             transactionId: record._id,
                         }
                     );
-                    setLoading(false);
+                    setDeleteLoading(false);
                     message.success("Transaction Deleted!");
                     setRefreshKey((k) => k + 1);
                 } catch (error) {
-                    setLoading(false);
+                    setDeleteLoading(false);
                     message.error("Unable to delete transaction.");
                 }
             }
@@ -152,7 +153,7 @@ const HomePage = () => {
 
     return (
         <Layout>
-            {loading && <Spinner />}
+            {deleteLoading && <Spinner />}
 
             <TableHeader
                 setType={setType}
@@ -175,7 +176,7 @@ const HomePage = () => {
                             dataSource={allTransaction}
                             responsive={true}
                             rowKey="_id"
-                            loading={loading}
+                            loading={fetchLoading}
                             scroll={viewMode === 'table' ? { x: 'max-content' , y: 350 } : undefined}
                             size="medium"
                             locale={{ emptyText: "No transactions available" }}

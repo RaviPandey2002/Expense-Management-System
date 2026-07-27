@@ -10,8 +10,6 @@ const app = express();
 app.use(morgan("dev"));
 app.use(express.json());
 
-console.log(process.env.CLIENT_URL || "http://localhost:3001")
-
 app.use(cors({
   origin: process.env.CLIENT_URL || "http://localhost:3000",
   credentials: true,
@@ -29,11 +27,12 @@ app.use("/testing",(req,res)=>{
 app.use("/api/v1/users", require("./routes/userRoute"));
 app.use("/api/v1/transactions", authMiddleware, require("./routes/transactionRoutes"));
 
-//static files
-app.use(express.static(path.join(__dirname, "./client/build")));
 
-app.get("*", function (req, res) {
-  res.sendFile(path.join(__dirname, "./client/build/index.html"));
-});
+//static files for - serving React - frontend project [!!! we can do this too !!!]
+// app.use(express.static(path.join(__dirname, "./client/build")));
+
+// app.get("*", function (req, res) {
+//   res.sendFile(path.join(__dirname, "./client/build/index.html"));
+// });
 
 module.exports = app

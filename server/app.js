@@ -20,10 +20,6 @@ app.use(cookieParser());
 
 const authMiddleware = require("./middleware/authMiddleware");
 
-app.use("/testing",(req,res)=>{
-  console.log("Testing Route working!!");
-  return res.status(200).send({message:"Test successful!"});
-});
 app.use("/api/v1/users", require("./routes/userRoute"));
 app.use("/api/v1/transactions", authMiddleware, require("./routes/transactionRoutes"));
 

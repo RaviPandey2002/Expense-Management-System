@@ -12,7 +12,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@ant-design/icons": "^5.5.2",
     "bcryptjs": "^3.0.2",
     "colors": "^1.4.0",
     "concurrently": "^7.5.0",

@@ -3,14 +3,11 @@ const Transaction = require("../models/transactionModel");
 
 const getAllTransaction = async (req, res) => {
     try {
-        const { frequency, selectedDate, type, userId } = req.body;
+        const { frequency, selectedDate, type } = req.body;
+        const userId = req.userId; // set by authMiddleware from verified JWT
 
         // Initialize a query object
-        let query = {};
-
-        if (userId) {
-            query.userId = userId;
-        }
+        let query = { userId };
         let startDate;
         if (frequency && frequency !== "custom") {
             const today = new Date();
@@ -75,8 +72,7 @@ const editTransaction = async (req, res) => {
 };
 const addTransaction = async (req, res) => {
     try {
-        console.log("add transaction req",req.body);
-        const newTransaction = new Transaction(req.body);
+        const newTransaction = new Transaction({ ...req.body, userId: req.userId });
         await newTransaction.save();
         res.status(201).send("Transaction Created");
     } catch (error) {

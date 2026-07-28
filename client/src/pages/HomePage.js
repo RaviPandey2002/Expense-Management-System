@@ -105,7 +105,8 @@ const HomePage = () => {
                                 frequency,
                                 selectedDate: selectedDateParam,
                                 type,
-                            }
+                            },
+                            { withCredentials: true }
                         );
                         setAllTransaction(res?.data);
                         (res?.data)
@@ -138,7 +139,8 @@ const HomePage = () => {
                         `${process.env.REACT_APP_API_BASE_URL}/transactions/delete-transaction`,
                         {
                             transactionId: record._id,
-                        }
+                        },
+                        { withCredentials: true }
                     );
                     setDeleteLoading(false);
                     message.success("Transaction Deleted!");

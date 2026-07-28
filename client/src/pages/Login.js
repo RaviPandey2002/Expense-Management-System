@@ -13,7 +13,7 @@ const Login = () => {
   const submitHandler = async (values) => {
     try {
       setLoading(true);
-      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/users/login`, values);
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/users/login`, values, { withCredentials: true });
 
       const { data } = response
       setLoading(false);

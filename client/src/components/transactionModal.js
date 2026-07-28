@@ -51,7 +51,8 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, onSu
                             userId: user._id,
                         },
                         transactionId: editable._id,
-                    }
+                    },
+                    { withCredentials: true }
                 );
                 message.success("Transaction Updated Successfully");
             } else {
@@ -62,7 +63,8 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, onSu
                         category: categoryValue,
                         description: descriptionValue,
                         userId: user._id,
-                    }
+                    },
+                    { withCredentials: true }
                 );
                 message.success("Transaction Added Successfully");
             }

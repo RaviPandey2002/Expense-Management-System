@@ -1,4 +1,3 @@
-const { default: mongoose } = require("mongoose");
 const Transaction = require("../models/transactionModel");
 
 const getAllTransaction = async (req, res) => {
@@ -29,7 +28,6 @@ const getAllTransaction = async (req, res) => {
         if (frequency === "custom" && selectedDate && selectedDate.length === 2) {
             const [startDate, endDate] = selectedDate;
 
-            // Ensure that selectedDate is converted to JavaScript Date objects if it's in moment format
             const start = new Date(startDate);
             const end = new Date(endDate);
 

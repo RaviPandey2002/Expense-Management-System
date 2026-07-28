@@ -11,7 +11,7 @@ import {
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Analytics from "../components/Analytics";
-import ErrorBoundary from "../components/erorBoundary";
+import ErrorBoundary from "../components/ErrorBoundary";
 import TableHeader from "../components/tableHeader";
 import TransactionModal from "../components/transactionModal";
 import Layout from "./../components/Layout/Layout";
@@ -87,7 +87,6 @@ const HomePage = () => {
     useEffect(() => {
         const getAllTransactions = async () => {
             try {
-                const user = JSON.parse(localStorage.getItem("user"));
                 setFetchLoading(true);
                 const selectedDateParam =
                     frequency === "custom" && selectedDate?.length
@@ -101,7 +100,6 @@ const HomePage = () => {
                         res = await axios.post(
                             `${process.env.REACT_APP_API_BASE_URL}/transactions/get-transactions`,
                             {
-                                userId: user._id,
                                 frequency,
                                 selectedDate: selectedDateParam,
                                 type,
@@ -109,10 +107,6 @@ const HomePage = () => {
                             { withCredentials: true }
                         );
                         setAllTransaction(res?.data);
-                        (res?.data)
-                            ? console.log("Transactions added successfully!!")
-                            : console.log("There is No transaction available")
-
                     } catch (error) {
                         console.error("Error fetching from the API:", error);
                     }

@@ -27,12 +27,6 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, onSu
 
 
     const handleSubmit = async (values) => {
-        const user = JSON.parse(localStorage.getItem("user"));
-        if (!user || !user._id) {
-            message.error("User data is missing.");
-            return;
-        }
-
         const categoryValue = isOtherCategory
             ? values.customCategory
             : values.category;
@@ -48,7 +42,6 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, onSu
                         payload: {
                             ...values,
                             category: categoryValue,
-                            userId: user._id,
                         },
                         transactionId: editable._id,
                     },
@@ -62,7 +55,6 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, onSu
                         ...values,
                         category: categoryValue,
                         description: descriptionValue,
-                        userId: user._id,
                     },
                     { withCredentials: true }
                 );
@@ -151,12 +143,9 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, onSu
 
                 <Form.Item label="Date"
                     name="date"
-                    rules={[{ required: true, message: "Type is required" }]}
+                    rules={[{ required: true, message: "Date is required" }]}
                 >
-                    <DatePicker
-                        // value={editable?.date ? moment(editable?.date) : moment()}
-                        format="YYYY-MM-DD"
-                    />
+                    <DatePicker format="YYYY-MM-DD" />
                 </Form.Item>
 
                 <Form.Item label="Description" name="description">

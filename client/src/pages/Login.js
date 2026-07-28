@@ -3,10 +3,7 @@ import { Form, Input, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Spinner from "../components/Spinner";
-import "../styles/LoginPage.css";
 const Login = () => {
-  const img =
-    "https://images.unsplash.com/photo-1593538312308-d4c29d8dc7f1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80";
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   //from submit
@@ -41,9 +38,9 @@ const Login = () => {
       <div className="login-page ">
         {loading && <Spinner />}
         <div className="row container">
-          <h1>Expsanse Managment System - MERN STACK</h1>
-          <div className="col-md-6">
-            <img src={img} alt="login-img" width={"100%"} height="100%" />
+          <h1>Expense Management System</h1>
+          <div className="col-md-6 d-flex align-items-center justify-content-center">
+            <img src="/logo192.png" alt="Expense Management" width={"60%"} />
           </div>
           <div className="col-md-4 login-form">
             <Form layout="vertical" onFinish={submitHandler}>

@@ -10,10 +10,17 @@ const app = express();
 app.use(morgan("dev"));
 app.use(express.json());
 
-app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:3000",
-  credentials: true,
-}));
+const allowedCors = process.env.CLIENT_URLS
+  ? process.env.CLIENT_URLS.split(",").map(url => url.trim())
+  : ["http://localhost:3000"];
+
+app.use(
+  cors({
+    origin: allowedCors,
+    credentials: true,
+  })
+);
+
 app.use(cookieParser());
 
 // # ROUTES

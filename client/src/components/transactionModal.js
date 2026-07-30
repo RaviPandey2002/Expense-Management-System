@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Form, Select, Input, Button, DatePicker, message } from "antd";
-import moment from "moment";
+import dayjs from "dayjs";
 import axios from "axios";
 import CATEGORIES from "../utils/categories";
 
@@ -17,7 +17,7 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, onSu
             if (editable) {
                 form.setFieldsValue({
                     ...editable,
-                    date: editable.date ? moment(editable.date) : null,
+                    date: editable.date ? dayjs(editable.date) : null,
                 });
             } else {
                 form.resetFields();

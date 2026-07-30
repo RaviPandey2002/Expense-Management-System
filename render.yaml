@@ -1,7 +1,6 @@
 services:
-  - type: web
+  - type: static
     name: expense-management-system-frontend-lean
-    runtime: static
     buildCommand: cd client && npm install && npm run build
     staticPublishPath: client/build
     pullRequestPreviewsEnabled: false

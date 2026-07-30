@@ -23,6 +23,11 @@ app.use(
 
 app.use(cookieParser());
 
+// # HEALTH CHECK
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", message: "Backend is online" });
+});
+
 // # ROUTES
 
 const authMiddleware = require("./middleware/authMiddleware");

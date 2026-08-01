@@ -1,175 +1,198 @@
 import React from "react";
-import { Progress } from "antd";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  ResponsiveContainer,
+} from "recharts";
 import CATEGORIES from "../utils/categories";
+
+// ── Palette ────────────────────────────────────
+const COLOR_INCOME  = "#16a34a";
+const COLOR_EXPENSE = "#dc2626";
+
+// ── Helpers ────────────────────────────────────
+const fmt = (v) =>
+  v >= 1000 ? `$${(v / 1000).toFixed(1)}k` : `$${v}`;
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={{
+      background: "#fff",
+      border: "1px solid var(--color-border)",
+      borderRadius: 6,
+      padding: "8px 12px",
+      fontSize: "0.8125rem",
+    }}>
+      {label && <p style={{ marginBottom: 4, fontWeight: 600, color: "var(--color-text)" }}>{label}</p>}
+      {payload.map((entry) => (
+        <p key={entry.name} style={{ color: entry.color, margin: "2px 0" }}>
+          {entry.name}: ${Number(entry.value).toLocaleString()}
+        </p>
+      ))}
+    </div>
+  );
+};
 
 const Analytics = ({ allTransaction }) => {
   const categories = CATEGORIES.filter((c) => c !== "other");
 
-  // ── Transaction counts ────────────────────────────
-  const totalTransaction = allTransaction.length;
-  const totalIncomeTransactions = allTransaction.filter((t) => t.type === "income");
-  const totalExpenseTransactions = allTransaction.filter((t) => t.type === "expense");
+  // ── KPI totals ────────────────────────────────
+  const totalIncome = allTransaction
+    .filter((t) => t.type === "income")
+    .reduce((acc, t) => acc + t.amount, 0);
+  const totalExpense = allTransaction
+    .filter((t) => t.type === "expense")
+    .reduce((acc, t) => acc + t.amount, 0);
 
-  const totalIncomePercent = totalTransaction
-    ? Math.round((totalIncomeTransactions.length / totalTransaction) * 100)
-    : 0;
-  const totalExpensePercent = totalTransaction
-    ? Math.round((totalExpenseTransactions.length / totalTransaction) * 100)
-    : 0;
+  // ── Chart 1: Area chart — income vs expense over time ──
+  const timeMap = {};
+  allTransaction.forEach((t) => {
+    const day = new Date(t.date).toLocaleDateString("en-GB", {
+      day: "2-digit", month: "short",
+    });
+    if (!timeMap[day]) timeMap[day] = { date: day, income: 0, expense: 0 };
+    if (t.type === "income")  timeMap[day].income  += t.amount;
+    if (t.type === "expense") timeMap[day].expense += t.amount;
+  });
+  const timeData = Object.values(timeMap).sort(
+    (a, b) => new Date(a.date) - new Date(b.date)
+  );
 
-  // ── Turnover amounts ──────────────────────────────
-  const totalTurnover = allTransaction.reduce((acc, t) => acc + t.amount, 0);
-  const totalIncomeTurnover = totalIncomeTransactions.reduce((acc, t) => acc + t.amount, 0);
-  const totalExpenseTurnover = totalExpenseTransactions.reduce((acc, t) => acc + t.amount, 0);
+  // ── Chart 2: Donut — income vs expense split ──
+  const donutData = [
+    { name: "Income",  value: totalIncome  },
+    { name: "Expense", value: totalExpense },
+  ].filter((d) => d.value > 0);
 
-  const totalIncomeTurnoverPercent = totalTurnover
-    ? Math.round((totalIncomeTurnover / totalTurnover) * 100)
-    : 0;
-  const totalExpenseTurnoverPercent = totalTurnover
-    ? Math.round((totalExpenseTurnover / totalTurnover) * 100)
-    : 0;
+  // ── Chart 3: Horizontal bar — category breakdown ──
+  const catData = categories
+    .map((cat) => {
+      const income  = allTransaction.filter((t) => t.type === "income"  && t.category === cat).reduce((a, t) => a + t.amount, 0);
+      const expense = allTransaction.filter((t) => t.type === "expense" && t.category === cat).reduce((a, t) => a + t.amount, 0);
+      return { category: cat.charAt(0).toUpperCase() + cat.slice(1), income, expense };
+    })
+    .filter((d) => d.income > 0 || d.expense > 0);
+
+  // ── Empty state ───────────────────────────────
+  if (!allTransaction.length) {
+    return (
+      <div style={{ padding: 40, textAlign: "center", color: "var(--color-text-muted)" }}>
+        No transaction data to display. Add your first transaction.
+      </div>
+    );
+  }
 
   return (
-    <div className="analytics-grid" style={{ padding: "16px" }}>
+    <div className="analytics-charts" style={{ padding: "16px 20px" }}>
 
-      {/* ── Card 1: Total Transactions ── */}
-      <div className="analytics-card">
-        <p className="analytics-card__header">
-          Total Transactions: <strong>{totalTransaction}</strong>
-        </p>
-        <p className="analytics-stat analytics-stat--income">
-          Income: {totalIncomeTransactions.length}
-        </p>
-        <p className="analytics-stat analytics-stat--expense">
-          Expense: {totalExpenseTransactions.length}
-        </p>
-        <div className="analytics-rings">
-          <Progress
-            type="circle"
-            percent={totalIncomePercent}
-            strokeColor="var(--color-income)"
-            size={80}
-            format={(p) => <span style={{ fontSize: 12 }}>{p}%<br /><span style={{ color: "var(--color-income)", fontSize: 10 }}>Income</span></span>}
-          />
-          <Progress
-            type="circle"
-            percent={totalExpensePercent}
-            strokeColor="var(--color-expense)"
-            size={80}
-            format={(p) => <span style={{ fontSize: 12 }}>{p}%<br /><span style={{ color: "var(--color-expense)", fontSize: 10 }}>Expense</span></span>}
-          />
-        </div>
+      {/* ── Row 1: Area chart (full width) ── */}
+      <div className="analytics-chart-card">
+        <p className="analytics-chart-card__title">Income vs Expense Over Time</p>
+        <ResponsiveContainer width="100%" height={240}>
+          <AreaChart data={timeData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id="gradIncome" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%"  stopColor={COLOR_INCOME}  stopOpacity={0.18} />
+                <stop offset="95%" stopColor={COLOR_INCOME}  stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="gradExpense" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%"  stopColor={COLOR_EXPENSE} stopOpacity={0.18} />
+                <stop offset="95%" stopColor={COLOR_EXPENSE} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+            <XAxis dataKey="date" tick={{ fontSize: 11, fill: "var(--color-text-muted)" }} tickLine={false} axisLine={false} />
+            <YAxis tickFormatter={fmt} tick={{ fontSize: 11, fill: "var(--color-text-muted)" }} tickLine={false} axisLine={false} width={48} />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend wrapperStyle={{ fontSize: 12 }} />
+            <Area type="monotone" dataKey="income"  name="Income"  stroke={COLOR_INCOME}  strokeWidth={2} fill="url(#gradIncome)"  dot={false} activeDot={{ r: 4 }} />
+            <Area type="monotone" dataKey="expense" name="Expense" stroke={COLOR_EXPENSE} strokeWidth={2} fill="url(#gradExpense)" dot={false} activeDot={{ r: 4 }} />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
 
-      {/* ── Card 2: Total Turnover ── */}
-      <div className="analytics-card">
-        <p className="analytics-card__header">
-          Total Turnover: <strong>${totalTurnover.toLocaleString()}</strong>
-        </p>
-        <p className="analytics-stat analytics-stat--income">
-          Income: ${totalIncomeTurnover.toLocaleString()}
-        </p>
-        <p className="analytics-stat analytics-stat--expense">
-          Expense: ${totalExpenseTurnover.toLocaleString()}
-        </p>
-        <div className="analytics-rings">
-          <Progress
-            type="circle"
-            percent={totalIncomeTurnoverPercent}
-            strokeColor="var(--color-income)"
-            size={80}
-            format={(p) => <span style={{ fontSize: 12 }}>{p}%<br /><span style={{ color: "var(--color-income)", fontSize: 10 }}>Income</span></span>}
-          />
-          <Progress
-            type="circle"
-            percent={totalExpenseTurnoverPercent}
-            strokeColor="var(--color-expense)"
-            size={80}
-            format={(p) => <span style={{ fontSize: 12 }}>{p}%<br /><span style={{ color: "var(--color-expense)", fontSize: 10 }}>Expense</span></span>}
-          />
-        </div>
-      </div>
+      {/* ── Row 2: Donut + Bar side by side ── */}
+      <div className="analytics-row2">
 
-      {/* ── Card 3: Category-wise Income ── */}
-      <div className="analytics-card">
-        <p className="analytics-card__header analytics-card__header--income">
-          Category-wise Income
-        </p>
-        {categories.some((cat) =>
-          allTransaction.some((t) => t.type === "income" && t.category === cat)
-        ) ? (
-          categories.map((category) => {
-            const amount = allTransaction
-              .filter((t) => t.type === "income" && t.category === category)
-              .reduce((acc, t) => acc + t.amount, 0);
-            if (!amount) return null;
-            const percent = Math.round((amount / totalIncomeTurnover) * 100);
-            return (
-              <div key={category} style={{ marginBottom: 10 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
-                  <span style={{ fontSize: "0.8125rem", color: "var(--color-text)" }}>
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
-                  </span>
-                  <span style={{ fontSize: "0.8125rem", color: "var(--color-text-muted)" }}>
-                    {percent}%
-                  </span>
-                </div>
-                <Progress
-                  percent={percent}
-                  strokeColor="var(--color-income)"
-                  showInfo={false}
-                  size="small"
-                />
+        {/* Donut chart */}
+        <div className="analytics-chart-card">
+          <p className="analytics-chart-card__title">Income vs Expense Split</p>
+          {donutData.length > 0 ? (
+            <>
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={donutData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={55}
+                    outerRadius={80}
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    {donutData.map((entry, i) => (
+                      <Cell
+                        key={entry.name}
+                        fill={i === 0 ? COLOR_INCOME : COLOR_EXPENSE}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 4 }}>
+                <span style={{ fontSize: "0.8125rem", color: COLOR_INCOME, fontWeight: 600 }}>
+                  Income: ${totalIncome.toLocaleString()}
+                </span>
+                <span style={{ fontSize: "0.8125rem", color: COLOR_EXPENSE, fontWeight: 600 }}>
+                  Expense: ${totalExpense.toLocaleString()}
+                </span>
               </div>
-            );
-          })
-        ) : (
-          <p style={{ color: "var(--color-text-muted)", fontSize: "0.875rem", marginTop: 8 }}>
-            No income data
-          </p>
-        )}
-      </div>
+            </>
+          ) : (
+            <p style={{ color: "var(--color-text-muted)", fontSize: "0.875rem", marginTop: 8 }}>No data</p>
+          )}
+        </div>
 
-      {/* ── Card 4: Category-wise Expense ── */}
-      <div className="analytics-card">
-        <p className="analytics-card__header analytics-card__header--expense">
-          Category-wise Expense
-        </p>
-        {categories.some((cat) =>
-          allTransaction.some((t) => t.type === "expense" && t.category === cat)
-        ) ? (
-          categories.map((category) => {
-            const amount = allTransaction
-              .filter((t) => t.type === "expense" && t.category === category)
-              .reduce((acc, t) => acc + t.amount, 0);
-            if (!amount) return null;
-            const percent = Math.round((amount / totalExpenseTurnover) * 100);
-            return (
-              <div key={category} style={{ marginBottom: 10 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
-                  <span style={{ fontSize: "0.8125rem", color: "var(--color-text)" }}>
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
-                  </span>
-                  <span style={{ fontSize: "0.8125rem", color: "var(--color-text-muted)" }}>
-                    {percent}%
-                  </span>
-                </div>
-                <Progress
-                  percent={percent}
-                  strokeColor="var(--color-expense)"
-                  showInfo={false}
-                  size="small"
-                />
-              </div>
-            );
-          })
-        ) : (
-          <p style={{ color: "var(--color-text-muted)", fontSize: "0.875rem", marginTop: 8 }}>
-            No expense data
-          </p>
-        )}
-      </div>
+        {/* Horizontal bar chart */}
+        <div className="analytics-chart-card">
+          <p className="analytics-chart-card__title">Category Breakdown</p>
+          {catData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={Math.max(200, catData.length * 36 + 40)}>
+              <BarChart
+                data={catData}
+                layout="vertical"
+                margin={{ top: 4, right: 16, left: 8, bottom: 4 }}
+                barSize={10}
+                barGap={3}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" horizontal={false} />
+                <XAxis type="number" tickFormatter={fmt} tick={{ fontSize: 11, fill: "var(--color-text-muted)" }} tickLine={false} axisLine={false} />
+                <YAxis type="category" dataKey="category" tick={{ fontSize: 11, fill: "var(--color-text-muted)" }} tickLine={false} axisLine={false} width={72} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: "var(--color-surface)" }} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Bar dataKey="income"  name="Income"  fill={COLOR_INCOME}  radius={[0, 3, 3, 0]} />
+                <Bar dataKey="expense" name="Expense" fill={COLOR_EXPENSE} radius={[0, 3, 3, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <p style={{ color: "var(--color-text-muted)", fontSize: "0.875rem", marginTop: 8 }}>No category data</p>
+          )}
+        </div>
 
+      </div>
     </div>
   );
 };

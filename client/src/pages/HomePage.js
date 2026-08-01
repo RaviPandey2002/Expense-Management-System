@@ -13,12 +13,10 @@ import ErrorBoundary from "../components/ErrorBoundary";
 import TableHeader from "../components/tableHeader";
 import TransactionModal from "../components/transactionModal";
 import Layout from "./../components/Layout/Layout";
-import Spinner from "./../components/Spinner";
 
 const HomePage = () => {
   const [showModal, setShowModal] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
   const [allTransaction, setAllTransaction] = useState([]);
   const [frequency, setFrequency] = useState("7");
   const [selectedDate, setSelectedDate] = useState(null);
@@ -154,7 +152,6 @@ const HomePage = () => {
       cancelText: "Cancel",
       onOk: async () => {
         try {
-          setDeleteLoading(true);
           await axios.post(
             `${process.env.REACT_APP_API_BASE_URL}/transactions/delete-transaction`,
             { transactionId: record._id },
@@ -164,8 +161,6 @@ const HomePage = () => {
           setRefreshKey((k) => k + 1);
         } catch {
           message.error("Unable to delete transaction");
-        } finally {
-          setDeleteLoading(false);
         }
       },
     });
@@ -173,8 +168,6 @@ const HomePage = () => {
 
   return (
     <Layout>
-      {deleteLoading && <Spinner />}
-
       {/* ── KPI Summary Cards ── */}
       <div className="kpi-row">
         <div className="kpi-card kpi-card--balance">

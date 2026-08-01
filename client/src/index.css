@@ -424,15 +424,15 @@ a:hover {
 }
 
 /* ─────────────────────────────────────────────
-   ANALYTICS
+   ANALYTICS — Recharts layout
    ───────────────────────────────────────────── */
-.analytics-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+.analytics-charts {
+  display: flex;
+  flex-direction: column;
   gap: var(--spacing-md);
 }
 
-.analytics-card {
+.analytics-chart-card {
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -440,38 +440,20 @@ a:hover {
   box-shadow: var(--shadow-card);
 }
 
-.analytics-card__header {
+.analytics-chart-card__title {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text-muted);
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
   padding-bottom: var(--spacing-sm);
   border-bottom: 1px solid var(--color-border);
 }
 
-.analytics-card__header--income {
-  color: var(--color-income);
-}
-
-.analytics-card__header--expense {
-  color: var(--color-expense);
-}
-
-.analytics-rings {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.analytics-row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: var(--spacing-md);
-  margin-top: var(--spacing-sm);
 }
-
-.analytics-stat {
-  font-size: 0.875rem;
-  margin-bottom: var(--spacing-xs);
-}
-
-.analytics-stat--income { color: var(--color-income); }
-.analytics-stat--expense { color: var(--color-expense); }
 
 /* ─────────────────────────────────────────────
    SPINNER
@@ -493,8 +475,8 @@ a:hover {
     padding: var(--spacing-md) var(--spacing-lg);
   }
 
-  .analytics-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .analytics-row2 {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -563,8 +545,8 @@ a:hover {
     display: none;
   }
 
-  /* Analytics — single column */
-  .analytics-grid {
+  /* Analytics — single column on mobile */
+  .analytics-row2 {
     grid-template-columns: 1fr;
   }
 

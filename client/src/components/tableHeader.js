@@ -33,7 +33,7 @@ const TableHeader = ({
         <Select
           value={frequency}
           onChange={handleFrequencyChange}
-          style={{ width: 160 }}
+          className="toolbar__select"
         >
           <Select.Option value="7">Last 1 Week</Select.Option>
           <Select.Option value="30">Last 1 Month</Select.Option>
@@ -46,7 +46,7 @@ const TableHeader = ({
             onChange={handleDateChange}
             format="YYYY-MM-DD"
             placeholder={["Start Date", "End Date"]}
-            style={{ marginTop: 6 }}
+            className="toolbar__rangepicker"
           />
         )}
       </div>
@@ -57,7 +57,7 @@ const TableHeader = ({
         <Select
           value={type}
           onChange={(value) => setType(value)}
-          style={{ width: 130 }}
+          className="toolbar__select"
         >
           <Select.Option value="all">All</Select.Option>
           <Select.Option value="income">Income</Select.Option>

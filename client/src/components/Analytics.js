@@ -56,18 +56,18 @@ const Analytics = ({ allTransaction }) => {
     .reduce((acc, t) => acc + t.amount, 0);
 
   // ── Chart 1: Area chart — income vs expense over time ──
+  // Key by ISO date (YYYY-MM-DD) for correct sort, display as "DD MMM"
   const timeMap = {};
   allTransaction.forEach((t) => {
-    const day = new Date(t.date).toLocaleDateString("en-GB", {
+    const isoDay = t.date.slice(0, 10); // "2024-03-15"
+    const display = new Date(t.date).toLocaleDateString("en-GB", {
       day: "2-digit", month: "short",
     });
-    if (!timeMap[day]) timeMap[day] = { date: day, income: 0, expense: 0 };
-    if (t.type === "income")  timeMap[day].income  += t.amount;
-    if (t.type === "expense") timeMap[day].expense += t.amount;
+    if (!timeMap[isoDay]) timeMap[isoDay] = { date: display, isoDay, income: 0, expense: 0 };
+    if (t.type === "income")  timeMap[isoDay].income  += t.amount;
+    if (t.type === "expense") timeMap[isoDay].expense += t.amount;
   });
-  const timeData = Object.values(timeMap).sort(
-    (a, b) => new Date(a.date) - new Date(b.date)
-  );
+  const timeData = Object.values(timeMap).sort((a, b) => a.isoDay.localeCompare(b.isoDay));
 
   // ── Chart 2: Donut — income vs expense split ──
   const donutData = [
@@ -94,12 +94,12 @@ const Analytics = ({ allTransaction }) => {
   }
 
   return (
-    <div className="analytics-charts" style={{ padding: "16px 20px" }}>
+    <div className="analytics-charts">
 
       {/* ── Row 1: Area chart (full width) ── */}
       <div className="analytics-chart-card">
         <p className="analytics-chart-card__title">Income vs Expense Over Time</p>
-        <ResponsiveContainer width="100%" height={240}>
+        <ResponsiveContainer width="100%" height={220}>
           <AreaChart data={timeData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="gradIncome" x1="0" y1="0" x2="0" y2="1">
@@ -174,13 +174,13 @@ const Analytics = ({ allTransaction }) => {
               <BarChart
                 data={catData}
                 layout="vertical"
-                margin={{ top: 4, right: 16, left: 8, bottom: 4 }}
+                margin={{ top: 4, right: 16, left: 4, bottom: 4 }}
                 barSize={10}
                 barGap={3}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" horizontal={false} />
                 <XAxis type="number" tickFormatter={fmt} tick={{ fontSize: 11, fill: "var(--color-text-muted)" }} tickLine={false} axisLine={false} />
-                <YAxis type="category" dataKey="category" tick={{ fontSize: 11, fill: "var(--color-text-muted)" }} tickLine={false} axisLine={false} width={72} />
+                <YAxis type="category" dataKey="category" tick={{ fontSize: 10, fill: "var(--color-text-muted)" }} tickLine={false} axisLine={false} width={64} />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: "var(--color-surface)" }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Bar dataKey="income"  name="Income"  fill={COLOR_INCOME}  radius={[0, 3, 3, 0]} />

@@ -79,6 +79,7 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, onSu
       footer={null}
       centered
       width={480}
+      style={{ maxWidth: "calc(100vw - 32px)" }}
       destroyOnClose
     >
       <Form
@@ -157,7 +158,7 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, onSu
         </Form.Item>
 
         <Form.Item style={{ marginBottom: 0, marginTop: 8 }}>
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+          <div className="modal-footer-btns">
             <Button onClick={handleCancel} size="large">
               Cancel
             </Button>

@@ -7,10 +7,10 @@ import {
 } from "@ant-design/icons";
 import { App, Modal, Table, Tooltip } from "antd";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Analytics from "../components/Analytics";
 import ErrorBoundary from "../components/ErrorBoundary";
-import TableHeader from "../components/tableHeader";
+import FilterBar from "../components/FilterBar";
 import TransactionModal from "../components/transactionModal";
 import Layout from "./../components/Layout/Layout";
 
@@ -38,7 +38,8 @@ const HomePage = () => {
   const totalBalance = totalIncome - totalExpense;
 
   // ── Table columns ─────────────────────────────────
-  const columns = [
+  // handleDelete is defined below but stable across renders (no state deps change its identity)
+  const columns = useMemo(() => [
     {
       title: "#",
       key: "index",
@@ -49,6 +50,7 @@ const HomePage = () => {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
+      sorter: (a, b) => a.amount - b.amount,
       render: (val, record) => (
         <span style={{ color: record.type === "income" ? "var(--color-income)" : "var(--color-expense)", fontWeight: 600 }}>
           {record.type === "income" ? "+" : "-"}${Math.abs(val).toLocaleString()}
@@ -59,16 +61,21 @@ const HomePage = () => {
       title: "Type",
       dataIndex: "type",
       key: "type",
+      filters: [
+        { text: "Income",  value: "income"  },
+        { text: "Expense", value: "expense" },
+      ],
+      onFilter: (value, record) => record.type === value,
       render: (val) => (
-        <span className={`badge badge--${val}`}>
-          {val}
-        </span>
+        <span className={`badge badge--${val}`}>{val}</span>
       ),
     },
     {
       title: "Date",
       dataIndex: "date",
       key: "date",
+      defaultSortOrder: "descend",
+      sorter: (a, b) => new Date(a.date) - new Date(b.date),
       render: (text) => new Date(text).toLocaleDateString(),
     },
     {
@@ -86,7 +93,7 @@ const HomePage = () => {
     {
       title: "Actions",
       key: "actions",
-      width: 100,
+      width: 80,
       render: (_, record) => (
         <div className="action-icons">
           <Tooltip title="Edit">
@@ -111,7 +118,8 @@ const HomePage = () => {
         </div>
       ),
     },
-  ];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ], []);
 
   // ── Fetch transactions ────────────────────────────
   useEffect(() => {
@@ -173,7 +181,7 @@ const HomePage = () => {
         <div className="kpi-card kpi-card--balance">
           <div>
             <p className="kpi-card__label">Total Balance</p>
-            <p className={`kpi-card__value kpi-card__value--balance`}>
+            <p className="kpi-card__value kpi-card__value--balance">
               ${totalBalance.toLocaleString()}
             </p>
           </div>
@@ -201,16 +209,16 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* ── Filter Toolbar ── */}
-      <TableHeader
-        setType={setType}
-        setViewMode={setViewMode}
+      {/* ── Filter Bar ── */}
+      <FilterBar
         frequency={frequency}
         setFrequency={setFrequency}
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
         type={type}
+        setType={setType}
         viewMode={viewMode}
+        setViewMode={setViewMode}
         setShowModal={setShowModal}
         setEditable={setEditable}
       />

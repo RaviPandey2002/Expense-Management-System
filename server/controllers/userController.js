@@ -2,13 +2,12 @@ const User = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-//Register Callback
+// Register callback
 const registerController = async (req, res) => {
   try {
     const { name, email, password } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      console.log("User already exist with this Email");
       return res.status(401).json({
         message: "This email already exists!!",
       });
@@ -38,7 +37,7 @@ const registerController = async (req, res) => {
   }
 };
 
-// login callback
+// Login callback
 const loginController = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -81,6 +80,7 @@ const loginController = async (req, res) => {
   }
 };
 
+// Logout callback
 const logoutController = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
@@ -90,4 +90,27 @@ const logoutController = (req, res) => {
   return res.status(200).json({ success: true, message: "Logged out successfully" });
 };
 
-module.exports = { loginController, registerController, logoutController };
+// update password callback
+const updatePasswordController = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: "Current password is incorrect" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    return res.status(200).json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    res.status(400).json({ success: false, message: `Error updating password: ${error.message}` });
+  }
+};
+
+module.exports = { loginController, registerController, logoutController, updatePasswordController };

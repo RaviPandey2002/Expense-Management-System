@@ -1,68 +1,98 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, message } from "antd";
+import { Form, Input, Button, App } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import Spinner from "../components/Spinner";
+
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  //from submit
+  const { message } = App.useApp();
+
   const submitHandler = async (values) => {
     try {
       setLoading(true);
-      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/users/login`, values, { withCredentials: true });
-
-      const { data } = response
-      setLoading(false);
-      message.success("login success");
-      localStorage.setItem(
-        "user",
-        JSON.stringify({ ...data.user, password: "" })
+      const { data } = await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/users/login`,
+        values,
+        { withCredentials: true }
       );
+      localStorage.setItem("user", JSON.stringify({ ...data.user, password: "" }));
+      message.success("Login successful");
       navigate("/");
     } catch (error) {
+      message.error(error?.response?.data?.message || "Login failed");
+    } finally {
       setLoading(false);
-      console.error("Login failed:", error?.response?.data?.message);
-      message.error(`Error while login. Error: ${error?.response?.data?.message}`);
     }
   };
 
-  //prevent for login user
   useEffect(() => {
-    if (localStorage.getItem("user")) {
-      navigate("/");
-    }
+    if (localStorage.getItem("user")) navigate("/");
   }, [navigate]);
-  return (
-    <>
-      <div className="login-page ">
-        {loading && <Spinner />}
-        <div className="row container">
-          <h1>Expense Management System</h1>
-          <div className="col-md-6 d-flex align-items-center justify-content-center">
-            <img src="/logo192.png" alt="Expense Management" width={"60%"} />
-          </div>
-          <div className="col-md-4 login-form">
-            <Form layout="vertical" onFinish={submitHandler}>
-              <h1>Login Form</h1>
 
-              <Form.Item label="Email" name="email">
-                <Input type="email" required />
-              </Form.Item>
-              <Form.Item label="Password" name="password">
-                <Input type="password" required />
-              </Form.Item>
-              <div className="d-flex justify-content-between">
-                <Link to="/register">
-                  Not a user ? Click Here to Register !
-                </Link>
-                <button className="btn">Login</button>
-              </div>
-            </Form>
-          </div>
+  return (
+    <div className="auth-page">
+      {/* ── Left branding panel ── */}
+      <div className="auth-panel">
+        <h1 className="auth-panel__title">Expense Management System</h1>
+        <p className="auth-panel__tagline">Track your money, own your future.</p>
+        <img
+          src="/images/financeIllustration.png"
+          alt="Finance illustration"
+          className="auth-panel__illustration"
+        />
+      </div>
+
+      {/* ── Right form panel ── */}
+      <div className="auth-form-panel">
+        <div className="auth-card">
+          <h2 className="auth-card__title">Welcome Back</h2>
+          <p className="auth-card__subtitle">Sign in to your account</p>
+
+          <Form layout="vertical" onFinish={submitHandler} requiredMark={false}>
+            <Form.Item
+              label="Email Address"
+              name="email"
+              rules={[
+                { required: true, message: "Email is required" },
+                { type: "email", message: "Enter a valid email" },
+              ]}
+            >
+              <Input
+                type="email"
+                placeholder="name@company.com"
+                size="large"
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Password"
+              name="password"
+              rules={[{ required: true, message: "Password is required" }]}
+            >
+              <Input.Password placeholder="••••••••" size="large" />
+            </Form.Item>
+
+            <Form.Item style={{ marginBottom: 0, marginTop: 8 }}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                size="large"
+                block
+                loading={loading}
+              >
+                {loading ? "Logging in…" : "Login"}
+              </Button>
+            </Form.Item>
+          </Form>
+
+          <p className="auth-card__footer">
+            Don't have an account?{" "}
+            <Link to="/register">Register</Link>
+          </p>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

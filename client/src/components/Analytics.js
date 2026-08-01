@@ -1,153 +1,176 @@
 import React from "react";
 import { Progress } from "antd";
 import CATEGORIES from "../utils/categories";
+
 const Analytics = ({ allTransaction }) => {
   const categories = CATEGORIES.filter((c) => c !== "other");
 
-  // total transaction
+  // ── Transaction counts ────────────────────────────
   const totalTransaction = allTransaction.length;
-  const totalIncomeTransactions = allTransaction.filter(
-    (transaction) => transaction.type === "income"
-  );
-  const totalExpenseTransactions = allTransaction.filter(
-    (transaction) => transaction.type === "expense"
-  );
+  const totalIncomeTransactions = allTransaction.filter((t) => t.type === "income");
+  const totalExpenseTransactions = allTransaction.filter((t) => t.type === "expense");
+
   const totalIncomePercent = totalTransaction
-    ? (totalIncomeTransactions.length / totalTransaction) * 100
+    ? Math.round((totalIncomeTransactions.length / totalTransaction) * 100)
     : 0;
   const totalExpensePercent = totalTransaction
-    ? (totalExpenseTransactions.length / totalTransaction) * 100
+    ? Math.round((totalExpenseTransactions.length / totalTransaction) * 100)
     : 0;
 
-  //total turnover
-  const totalTurnover = allTransaction.reduce(
-    (acc, transaction) => acc + transaction.amount,
-    0
-  );
-  const totalIncomeTurnover = allTransaction
-    .filter((transaction) => transaction.type === "income")
-    .reduce((acc, transaction) => acc + transaction.amount, 0);
-
-  const totalExpenseTurnover = allTransaction
-    .filter((transaction) => transaction.type === "expense")
-    .reduce((acc, transaction) => acc + transaction.amount, 0);
+  // ── Turnover amounts ──────────────────────────────
+  const totalTurnover = allTransaction.reduce((acc, t) => acc + t.amount, 0);
+  const totalIncomeTurnover = totalIncomeTransactions.reduce((acc, t) => acc + t.amount, 0);
+  const totalExpenseTurnover = totalExpenseTransactions.reduce((acc, t) => acc + t.amount, 0);
 
   const totalIncomeTurnoverPercent = totalTurnover
-    ? (totalIncomeTurnover / totalTurnover) * 100
+    ? Math.round((totalIncomeTurnover / totalTurnover) * 100)
     : 0;
   const totalExpenseTurnoverPercent = totalTurnover
-    ? (totalExpenseTurnover / totalTurnover) * 100
+    ? Math.round((totalExpenseTurnover / totalTurnover) * 100)
     : 0;
 
   return (
-    <>
-      <div className="row m-3">
-        <div className="col-md-3">
-          <div className="card">
-            <div className="card-header">
-              Total Transactions : {totalTransaction}
-            </div>
-            <div className="card-body">
-              <h5 className="text-success">
-                Income : {totalIncomeTransactions.length}
-              </h5>
-              <h5 className="text-danger">
-                Expense : {totalExpenseTransactions.length}
-              </h5>
-              <div className="d-flex flex-column align-items-center">
-                <Progress
-                  type="circle"
-                  strokeColor={"green"}
-                  className="mx-2"
-                  percent={Math.round(totalIncomePercent)}
-                />
-                <Progress
-                  type="circle"
-                  strokeColor={"red"}
-                  className="mx-2 mt-3"
-                  percent={Math.round(totalExpensePercent)}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="card">
-            <div className="card-header">Total TurnOver : {totalTurnover}</div>
-            <div className="card-body">
-              <h5 className="text-success">Income : {totalIncomeTurnover}</h5>
-              <h5 className="text-danger">Expense : {totalExpenseTurnover}</h5>
-              <div>
-                <Progress
-                  type="circle"
-                  strokeColor={"green"}
-                  className="mx-2"
-                  percent={Math.round(totalIncomeTurnoverPercent)}
-                />
-                <Progress
-                  type="circle"
-                  strokeColor={"red"}
-                  className="mx-2 mt-3"
-                  percent={Math.round(totalExpenseTurnoverPercent)}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <h6 className="bg-dark p-2 text-light">Categorywise Income</h6>
-          {categories.map((category) => {
-            const amount = allTransaction
-              .filter(
-                (transaction) =>
-                  transaction.type === "income" &&
-                  transaction.category === category
-              )
-              .reduce((acc, transaction) => acc + transaction.amount, 0);
-            return (
-              amount > 0 && (
-                <div key={category} className="card mt-2">
-                  <div className="card-body">
-                    <h6>{category}</h6>
-                    <Progress
-                      percent={((amount / totalIncomeTurnover) * 100).toFixed(
-                        0
-                      )}
-                    />
-                  </div>
-                </div>
-              )
-            );
-          })}
-        </div>
-        <div className="col-md-3">
-          <h6 className="bg-warning p-2 text-light">Categorywise Expense</h6>
-          {categories.map((category) => {
-            const amount = allTransaction
-              .filter(
-                (transaction) =>
-                  transaction.type === "expense" &&
-                  transaction.category === category
-              )
-              .reduce((acc, transaction) => acc + transaction.amount, 0);
-            return (
-              amount > 0 && (
-                <div key={category} className="card mt-2">
-                  <div className="card-body">
-                    <h6>{category}</h6>
-                    <Progress
-                      percent={((amount / totalExpenseTurnover) * 100).toFixed(
-                        0
-                      )}
-                    />
-                  </div>
-                </div>
-              )
-            );
-          })}
+    <div className="analytics-grid" style={{ padding: "16px" }}>
+
+      {/* ── Card 1: Total Transactions ── */}
+      <div className="analytics-card">
+        <p className="analytics-card__header">
+          Total Transactions: <strong>{totalTransaction}</strong>
+        </p>
+        <p className="analytics-stat analytics-stat--income">
+          Income: {totalIncomeTransactions.length}
+        </p>
+        <p className="analytics-stat analytics-stat--expense">
+          Expense: {totalExpenseTransactions.length}
+        </p>
+        <div className="analytics-rings">
+          <Progress
+            type="circle"
+            percent={totalIncomePercent}
+            strokeColor="var(--color-income)"
+            size={80}
+            format={(p) => <span style={{ fontSize: 12 }}>{p}%<br /><span style={{ color: "var(--color-income)", fontSize: 10 }}>Income</span></span>}
+          />
+          <Progress
+            type="circle"
+            percent={totalExpensePercent}
+            strokeColor="var(--color-expense)"
+            size={80}
+            format={(p) => <span style={{ fontSize: 12 }}>{p}%<br /><span style={{ color: "var(--color-expense)", fontSize: 10 }}>Expense</span></span>}
+          />
         </div>
       </div>
-    </>
+
+      {/* ── Card 2: Total Turnover ── */}
+      <div className="analytics-card">
+        <p className="analytics-card__header">
+          Total Turnover: <strong>${totalTurnover.toLocaleString()}</strong>
+        </p>
+        <p className="analytics-stat analytics-stat--income">
+          Income: ${totalIncomeTurnover.toLocaleString()}
+        </p>
+        <p className="analytics-stat analytics-stat--expense">
+          Expense: ${totalExpenseTurnover.toLocaleString()}
+        </p>
+        <div className="analytics-rings">
+          <Progress
+            type="circle"
+            percent={totalIncomeTurnoverPercent}
+            strokeColor="var(--color-income)"
+            size={80}
+            format={(p) => <span style={{ fontSize: 12 }}>{p}%<br /><span style={{ color: "var(--color-income)", fontSize: 10 }}>Income</span></span>}
+          />
+          <Progress
+            type="circle"
+            percent={totalExpenseTurnoverPercent}
+            strokeColor="var(--color-expense)"
+            size={80}
+            format={(p) => <span style={{ fontSize: 12 }}>{p}%<br /><span style={{ color: "var(--color-expense)", fontSize: 10 }}>Expense</span></span>}
+          />
+        </div>
+      </div>
+
+      {/* ── Card 3: Category-wise Income ── */}
+      <div className="analytics-card">
+        <p className="analytics-card__header analytics-card__header--income">
+          Category-wise Income
+        </p>
+        {categories.some((cat) =>
+          allTransaction.some((t) => t.type === "income" && t.category === cat)
+        ) ? (
+          categories.map((category) => {
+            const amount = allTransaction
+              .filter((t) => t.type === "income" && t.category === category)
+              .reduce((acc, t) => acc + t.amount, 0);
+            if (!amount) return null;
+            const percent = Math.round((amount / totalIncomeTurnover) * 100);
+            return (
+              <div key={category} style={{ marginBottom: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
+                  <span style={{ fontSize: "0.8125rem", color: "var(--color-text)" }}>
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </span>
+                  <span style={{ fontSize: "0.8125rem", color: "var(--color-text-muted)" }}>
+                    {percent}%
+                  </span>
+                </div>
+                <Progress
+                  percent={percent}
+                  strokeColor="var(--color-income)"
+                  showInfo={false}
+                  size="small"
+                />
+              </div>
+            );
+          })
+        ) : (
+          <p style={{ color: "var(--color-text-muted)", fontSize: "0.875rem", marginTop: 8 }}>
+            No income data
+          </p>
+        )}
+      </div>
+
+      {/* ── Card 4: Category-wise Expense ── */}
+      <div className="analytics-card">
+        <p className="analytics-card__header analytics-card__header--expense">
+          Category-wise Expense
+        </p>
+        {categories.some((cat) =>
+          allTransaction.some((t) => t.type === "expense" && t.category === cat)
+        ) ? (
+          categories.map((category) => {
+            const amount = allTransaction
+              .filter((t) => t.type === "expense" && t.category === category)
+              .reduce((acc, t) => acc + t.amount, 0);
+            if (!amount) return null;
+            const percent = Math.round((amount / totalExpenseTurnover) * 100);
+            return (
+              <div key={category} style={{ marginBottom: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
+                  <span style={{ fontSize: "0.8125rem", color: "var(--color-text)" }}>
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </span>
+                  <span style={{ fontSize: "0.8125rem", color: "var(--color-text-muted)" }}>
+                    {percent}%
+                  </span>
+                </div>
+                <Progress
+                  percent={percent}
+                  strokeColor="var(--color-expense)"
+                  showInfo={false}
+                  size="small"
+                />
+              </div>
+            );
+          })
+        ) : (
+          <p style={{ color: "var(--color-text-muted)", fontSize: "0.875rem", marginTop: 8 }}>
+            No expense data
+          </p>
+        )}
+      </div>
+
+    </div>
   );
 };
 

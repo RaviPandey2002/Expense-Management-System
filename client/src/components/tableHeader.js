@@ -1,100 +1,112 @@
-import { AreaChartOutlined, UnorderedListOutlined } from "@ant-design/icons";
-import { DatePicker, Select } from "antd";
+import { AreaChartOutlined, UnorderedListOutlined, PlusOutlined } from "@ant-design/icons";
+import { DatePicker, Select, Button } from "antd";
+
 const { RangePicker } = DatePicker;
 
-const TableHeader = ({ setType,
-    setViewMode,
-    frequency,
-    setFrequency,
-    selectedDate,
-    setSelectedDate,
-    type,
-    viewMode,
-    setShowModal,
-    setEditable
+const TableHeader = ({
+  setType,
+  setViewMode,
+  frequency,
+  setFrequency,
+  selectedDate,
+  setSelectedDate,
+  type,
+  viewMode,
+  setShowModal,
+  setEditable,
 }) => {
 
+  const handleDateChange = (dates) => {
+    setSelectedDate(dates ? dates : []);
+  };
 
-    // Function to handle the change of date range
-    const handleDateChange = (dates) => {
-        if (dates) {
-            setSelectedDate(dates); // Dates will be an array [startDate, endDate]
-        } else {
-            setSelectedDate([]); // Reset if no date range is selected
-        }
-    };
+  const handleFrequencyChange = (value) => {
+    setFrequency(value);
+    if (value !== "custom") setSelectedDate(null);
+  };
 
-    const handleFrequencyChange = (value) => {
-        setFrequency(value);
-        if (value !== "custom") {
-            setSelectedDate(null); // Clear custom date range when not in "custom"
-        }
-    };
+  return (
+    <div className="toolbar">
+      {/* Frequency */}
+      <div className="toolbar__group">
+        <span className="toolbar__label">Frequency</span>
+        <Select
+          value={frequency}
+          onChange={handleFrequencyChange}
+          style={{ width: 160 }}
+        >
+          <Select.Option value="7">Last 1 Week</Select.Option>
+          <Select.Option value="30">Last 1 Month</Select.Option>
+          <Select.Option value="365">Last 1 Year</Select.Option>
+          <Select.Option value="custom">Custom</Select.Option>
+        </Select>
+        {frequency === "custom" && (
+          <RangePicker
+            value={selectedDate}
+            onChange={handleDateChange}
+            format="YYYY-MM-DD"
+            placeholder={["Start Date", "End Date"]}
+            style={{ marginTop: 6 }}
+          />
+        )}
+      </div>
 
-    return <>
-        <div className="filters h-18 py-2">
-            <div className="mb-2 frequency">
-                <h6>Select Frequency</h6>
-                <Select
-                    value={frequency}
-                    onChange={handleFrequencyChange}
-                    className="w-100"
-                >
-                    <Select.Option value="7">Last 1 Week</Select.Option>
-                    <Select.Option value="30">Last 1 Month</Select.Option>
-                    <Select.Option value="365">Last 1 Year</Select.Option>
-                    <Select.Option value="custom">Custom</Select.Option>
-                </Select>
+      {/* Type */}
+      <div className="toolbar__group">
+        <span className="toolbar__label">Type</span>
+        <Select
+          value={type}
+          onChange={(value) => setType(value)}
+          style={{ width: 130 }}
+        >
+          <Select.Option value="all">All</Select.Option>
+          <Select.Option value="income">Income</Select.Option>
+          <Select.Option value="expense">Expense</Select.Option>
+        </Select>
+      </div>
 
-                {frequency === "custom" && (
-                    <>
-                        <div>Please select a date range:</div>
-                        <RangePicker
-                            value={selectedDate}
-                            onChange={handleDateChange}
-                            format="YYYY-MM-DD"
-                            placeholder={["Start Date", "End Date"]}
-                        />
-                    </>
-                )}
-            </div>
-            <div className="filter-tab mb-2">
-                <h6>Select Type</h6>
-                <Select value={type} onChange={(value) => setType(value)}  >
-                    <Select.Option value="all">ALL</Select.Option> 
-                    <Select.Option value="income">INCOME</Select.Option>
-                    <Select.Option value="expense">EXPENSE</Select.Option>
-                </Select>
-            </div>
-
-            <div className="mb-2">
-                <h6>View mode</h6>
-                <div className="switch-icons">
-                    <UnorderedListOutlined
-                        className={`mx-2 ${viewMode === "table" ? "active-icon" : "inactive-icon"
-                            }`}
-                        onClick={() => setViewMode("table")}
-                    />
-                    <AreaChartOutlined
-                        className={`mx-2 ${viewMode === "analytics" ? "active-icon" : "inactive-icon"
-                            }`} // Changed: Updated variable to "viewMode"
-                        onClick={() => setViewMode("analytics")}
-                    />
-                </div>
-            </div>
-            <div className="add-btn">
-                <button
-                    className="btn btn-primary my-btn"
-                    onClick={() => {
-                        setShowModal(true);
-                        setEditable(null)
-                    }}
-                >
-                    Add New
-                </button>
-            </div>
+      {/* View toggle */}
+      <div className="toolbar__group">
+        <span className="toolbar__label">View</span>
+        <div className="view-toggle">
+          <button
+            className={`view-toggle__btn${viewMode === "table" ? " view-toggle__btn--active" : ""}`}
+            onClick={() => setViewMode("table")}
+            aria-label="Table view"
+            title="Table view"
+          >
+            <UnorderedListOutlined />
+          </button>
+          <button
+            className={`view-toggle__btn${viewMode === "analytics" ? " view-toggle__btn--active" : ""}`}
+            onClick={() => setViewMode("analytics")}
+            aria-label="Analytics view"
+            title="Analytics view"
+          >
+            <AreaChartOutlined />
+          </button>
         </div>
-    </>
-}
+      </div>
+
+      {/* Spacer pushes Add New to the right */}
+      <div className="toolbar__spacer" />
+
+      {/* Add New */}
+      <div className="toolbar__group">
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          size="middle"
+          onClick={() => {
+            setEditable(null);
+            setShowModal(true);
+          }}
+        >
+          Add New
+        </Button>
+      </div>
+    </div>
+  );
+};
 
 export default TableHeader;

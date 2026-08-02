@@ -26,7 +26,6 @@ const HomePage = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const { message } = App.useApp();
 
-  // ── KPI calculations ──────────────────────────────
   const totalIncome = useMemo(
     () => allTransaction.filter((t) => t.type === "income").reduce((acc, t) => acc + t.amount, 0),
     [allTransaction]
@@ -39,8 +38,6 @@ const HomePage = () => {
 
   const totalBalance = totalIncome - totalExpense;
 
-  // ── Table columns ─────────────────────────────────
-  // handleDelete is defined below but stable across renders (no state deps change its identity)
   const columns = useMemo(() => [
     {
       title: "#",
@@ -55,7 +52,7 @@ const HomePage = () => {
       sorter: (a, b) => a.amount - b.amount,
       render: (val, record) => (
         <span style={{ color: record.type === "income" ? "var(--color-income)" : "var(--color-expense)", fontWeight: 600 }}>
-          {record.type === "income" ? "+" : "-"}${Math.abs(val).toLocaleString()}
+          {record.type === "income" ? "+" : "-"}₹{Math.abs(val).toLocaleString()}
         </span>
       ),
     },
@@ -123,7 +120,6 @@ const HomePage = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   ], []);
 
-  // ── Fetch transactions ────────────────────────────
   useEffect(() => {
     const getAllTransactions = async () => {
       try {
@@ -139,7 +135,7 @@ const HomePage = () => {
             { frequency, selectedDate: selectedDateParam, type },
             { withCredentials: true }
           );
-          setAllTransaction(res?.data);
+          setAllTransaction(Array.isArray(res?.data) ? res.data : []);
         }
       } catch (error) {
         message.error(
@@ -152,7 +148,6 @@ const HomePage = () => {
     getAllTransactions();
   }, [frequency, selectedDate, type, refreshKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Delete handler ────────────────────────────────
   const handleDelete = (record) => {
     Modal.confirm({
       title: "Delete this transaction?",
@@ -178,13 +173,12 @@ const HomePage = () => {
 
   return (
     <Layout>
-      {/* ── KPI Summary Cards ── */}
       <div className="kpi-row">
         <div className={`kpi-card kpi-card--balance${totalBalance < 0 ? " kpi-card--balance-negative" : ""}`}>
           <div>
             <p className="kpi-card__label">Total Balance</p>
             <p className={`kpi-card__value${totalBalance < 0 ? " kpi-card__value--expense" : " kpi-card__value--balance"}`}>
-              {totalBalance < 0 ? "-" : ""}${Math.abs(totalBalance).toLocaleString()}
+              {totalBalance < 0 ? "-" : ""}₹{Math.abs(totalBalance).toLocaleString()}
             </p>
           </div>
           <WalletOutlined
@@ -197,7 +191,7 @@ const HomePage = () => {
           <div>
             <p className="kpi-card__label">Total Income</p>
             <p className="kpi-card__value kpi-card__value--income">
-              +${totalIncome.toLocaleString()}
+              +₹{totalIncome.toLocaleString()}
             </p>
           </div>
           <ArrowUpOutlined className="kpi-card__icon" style={{ color: "var(--color-income)" }} />
@@ -207,14 +201,13 @@ const HomePage = () => {
           <div>
             <p className="kpi-card__label">Total Expense</p>
             <p className="kpi-card__value kpi-card__value--expense">
-              -${totalExpense.toLocaleString()}
+              -₹{totalExpense.toLocaleString()}
             </p>
           </div>
           <ArrowDownOutlined className="kpi-card__icon" style={{ color: "var(--color-expense)" }} />
         </div>
       </div>
 
-      {/* ── Filter Bar ── */}
       <FilterBar
         frequency={frequency}
         setFrequency={setFrequency}
@@ -228,7 +221,6 @@ const HomePage = () => {
         setEditable={setEditable}
       />
 
-      {/* ── Table / Analytics ── */}
       <div className="table-wrap">
         {viewMode === "table" ? (
           <Table
@@ -246,7 +238,6 @@ const HomePage = () => {
         )}
       </div>
 
-      {/* ── Add / Edit Modal ── */}
       <ErrorBoundary>
         <TransactionModal
           showModal={showModal}

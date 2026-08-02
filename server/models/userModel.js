@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 
-//schema design
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -18,10 +17,19 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    isDemo: {
+      type: Boolean,
+      default: false,
+    },
+    expiresAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );
 
-//export
+userSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
 const users = mongoose.model("users", userSchema);
 module.exports = users;

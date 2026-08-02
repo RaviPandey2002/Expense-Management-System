@@ -29,13 +29,12 @@ const FilterBar = ({
   setShowModal,
   setEditable,
 }) => {
-  // Local draft — only pushed to parent on Apply
-  const [draftDate, setDraftDate] = useState(selectedDate);
+  const [draftDate, setDraftDate] = useState(selectedDate ?? []);
 
   const handleFrequencyChange = (value) => {
     setFrequency(value);
     if (value !== "custom") {
-      setDraftDate(null);
+      setDraftDate([]);
       setSelectedDate(null);
     }
   };
@@ -55,10 +54,8 @@ const FilterBar = ({
   return (
     <div className="filterbar">
 
-      {/* ── Primary row ── */}
       <div className="filterbar__row">
 
-        {/* Frequency segment */}
         <div className="filterbar__seg" role="group" aria-label="Time range">
           {FREQUENCY_OPTIONS.map((opt) => (
             <button
@@ -75,10 +72,8 @@ const FilterBar = ({
           ))}
         </div>
 
-        {/* Divider */}
         <div className="filterbar__divider" />
 
-        {/* Type pill + Add button — wrapped for mobile row 2 */}
         <div className="filterbar__row-sub">
           <div className="filterbar__pill" role="group" aria-label="Transaction type">
             {TYPE_OPTIONS.map((opt) => (
@@ -92,7 +87,6 @@ const FilterBar = ({
             ))}
           </div>
 
-          {/* Add Transaction */}
           <button
             className="filterbar__add-btn"
             onClick={() => {
@@ -105,10 +99,8 @@ const FilterBar = ({
           </button>
         </div>
 
-        {/* Push right */}
         <div className="filterbar__spacer" />
 
-        {/* View toggle */}
         <div className="filterbar__view" role="group" aria-label="View mode">
           <button
             className={`filterbar__view-btn${viewMode === "table" ? " filterbar__view-btn--active" : ""}`}
@@ -130,7 +122,6 @@ const FilterBar = ({
 
       </div>
 
-      {/* ── Custom date range row (conditional) ── */}
       {frequency === "custom" && (
         <div className="filterbar__date-row">
           <span className="filterbar__date-label">Date range</span>

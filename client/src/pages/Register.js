@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Form, Input, Button, App } from "antd";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import axios from "axios";
 
 const Register = () => {
@@ -24,26 +24,17 @@ const Register = () => {
     }
   };
 
-  useEffect(() => {
-    if (localStorage.getItem("user")) navigate("/");
-  }, [navigate]);
+  if (localStorage.getItem("user")) return <Navigate to="/" replace />;
 
   return (
     <div className="auth-page">
-      {/* ── Left branding panel ── */}
-      <div className="auth-panel">
-        <h1 className="auth-panel__title">Expense Management System</h1>
-        <p className="auth-panel__tagline">Track your money, own your future.</p>
-        <img
-          src="/images/financeIllustration.png"
-          alt="Finance illustration"
-          className="auth-panel__illustration"
-        />
-      </div>
-
-      {/* ── Right form panel ── */}
       <div className="auth-form-panel">
         <div className="auth-card">
+          <div className="auth-card__brand">
+            <h1 className="auth-card__brand-title">Expense Management</h1>
+            <p className="auth-card__brand-tagline">Track your money, own your future.</p>
+          </div>
+
           <h2 className="auth-card__title">Create Account</h2>
           <p className="auth-card__subtitle">Start tracking your expenses today</p>
 

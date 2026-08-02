@@ -1,8 +1,10 @@
 const User = require("../models/userModel");
+const Transaction = require("../models/transactionModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const generateDemoTransactions = require("../utils/demoData");
 
-// Register callback
 const registerController = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -19,7 +21,6 @@ const registerController = async (req, res) => {
       return res.status(409).json({ success: false, message: "An account with this email already exists" });
     }
 
-    // hashing the password before saving it in DB
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
@@ -36,14 +37,16 @@ const registerController = async (req, res) => {
       result: safeResult,
     });
   } catch (error) {
-    res.status(400).json({
+    const isDuplicate = error.code === 11000;
+    res.status(isDuplicate ? 409 : 400).json({
       success: false,
-      error: `Something went wrong while registering user!!!. Error: ${error.message}`,
+      message: isDuplicate
+        ? "An account with this email already exists"
+        : `Something went wrong while registering user. Error: ${error.message}`,
     });
   }
 };
 
-// Login callback
 const loginController = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -52,6 +55,13 @@ const loginController = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "User Not Found",
+      });
+    }
+
+    if (user.isDemo) {
+      return res.status(403).json({
+        success: false,
+        message: "Demo accounts cannot log in with a password",
       });
     }
 
@@ -86,7 +96,6 @@ const loginController = async (req, res) => {
   }
 };
 
-// Logout callback
 const logoutController = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
@@ -96,10 +105,17 @@ const logoutController = (req, res) => {
   return res.status(200).json({ success: true, message: "Logged out successfully" });
 };
 
-// update password callback
 const updatePasswordController = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: "currentPassword and newPassword are required" });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: "New password must be at least 6 characters" });
+    }
+
     const user = await User.findById(req.userId);
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
@@ -119,4 +135,67 @@ const updatePasswordController = async (req, res) => {
   }
 };
 
-module.exports = { loginController, registerController, logoutController, updatePasswordController };
+const COOKIE_OPTIONS = (maxAgeMs) => ({
+  httpOnly: true,
+  secure: true,
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  maxAge: maxAgeMs,
+});
+
+const DEMO_TTL_MS  = 2 * 60 * 60 * 1000;
+const DEMO_TTL_SEC = 2 * 60 * 60;
+
+const demoLoginController = async (req, res) => {
+  try {
+    const existingToken = req.cookies?.token;
+    if (existingToken) {
+      try {
+        const decoded = jwt.verify(existingToken, process.env.JWT_SECRET);
+        const existingUser = await User.findById(decoded.userId).lean();
+
+        if (existingUser && existingUser.isDemo) {
+          const { password: _, ...safeUser } = existingUser;
+          const newToken = jwt.sign(
+            { userId: existingUser._id, isDemo: true },
+            process.env.JWT_SECRET,
+            { expiresIn: `${DEMO_TTL_SEC}s` }
+          );
+          res.cookie("token", newToken, COOKIE_OPTIONS(DEMO_TTL_MS));
+          return res.status(200).json({ success: true, user: { ...safeUser, isDemo: true } });
+        }
+      } catch (_) {
+        // ignore
+      }
+    }
+
+    const uuid       = crypto.randomUUID().replace(/-/g, "").slice(0, 12);
+    const demoEmail  = `demo_${uuid}@demo.local`;
+    const demoPass   = await bcrypt.hash(crypto.randomUUID(), 10); // random, never used
+    const expiresAt  = new Date(Date.now() + DEMO_TTL_MS);
+
+    const demoUser = await User.create({
+      name: "Demo User",
+      email: demoEmail,
+      password: demoPass,
+      isDemo: true,
+      expiresAt,
+    });
+
+    await Transaction.insertMany(generateDemoTransactions(demoUser._id));
+
+    const { password: _pw, ...safeUser } = demoUser.toObject();
+    const token = jwt.sign(
+      { userId: demoUser._id, isDemo: true },
+      process.env.JWT_SECRET,
+      { expiresIn: `${DEMO_TTL_SEC}s` }
+    );
+
+    res.cookie("token", token, COOKIE_OPTIONS(DEMO_TTL_MS));
+    return res.status(201).json({ success: true, user: { ...safeUser, isDemo: true } });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to start demo session" });
+  }
+};
+
+module.exports = { loginController, registerController, logoutController, updatePasswordController, demoLoginController };

@@ -8,6 +8,7 @@ import {
   InfoCircleOutlined,
   QuestionCircleOutlined,
   SettingOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
 
@@ -19,6 +20,8 @@ const Header = () => {
   const [aboutModal, setAboutModal] = useState(false);
   const [helpModal, setHelpModal] = useState(false);
   const [pwdLoading, setPwdLoading] = useState(false);
+  const [clearDemoModal, setClearDemoModal] = useState(false);
+  const [clearDemoLoading, setClearDemoLoading] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const { message } = App.useApp();
@@ -29,7 +32,6 @@ const Header = () => {
     if (user) setLoginUser(user);
   }, []);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -48,9 +50,7 @@ const Header = () => {
         {},
         { withCredentials: true }
       );
-    } catch (_) {
-      // proceed with client-side logout even if server call fails
-    }
+    } catch (_) {}
     localStorage.removeItem("user");
     message.success("Logged out successfully");
     navigate("/login");
@@ -79,6 +79,26 @@ const Header = () => {
     setter(true);
   };
 
+  const clearDemoDataHandler = async () => {
+    try {
+      setClearDemoLoading(true);
+      await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/transactions/delete-all-transactions`,
+        {},
+        { withCredentials: true }
+      );
+      message.success("All demo transactions cleared");
+      setClearDemoModal(false);
+      window.location.reload();
+    } catch (error) {
+      message.error(error?.response?.data?.message || "Failed to clear demo data");
+    } finally {
+      setClearDemoLoading(false);
+    }
+  };
+
+  const isDemo = !!loginUser?.isDemo;
+
   const initials = loginUser?.name
     ? loginUser.name
         .split(" ")
@@ -89,23 +109,34 @@ const Header = () => {
     : "U";
 
   const menuItems = [
-    {
-      icon: <UserOutlined />,
-      label: "View Profile",
-      action: () => openModal(setProfileModal),
-    },
-    {
-      icon: <LockOutlined />,
-      label: "Update Password",
-      action: () => openModal(setPasswordModal),
-    },
-    {
-      icon: <SettingOutlined />,
-      label: "Preferences",
-      action: () => message.info("Preferences coming soon"),
-      muted: true,
-    },
-    { divider: true },
+    ...(!isDemo ? [
+      {
+        icon: <UserOutlined />,
+        label: "View Profile",
+        action: () => openModal(setProfileModal),
+      },
+      {
+        icon: <LockOutlined />,
+        label: "Update Password",
+        action: () => openModal(setPasswordModal),
+      },
+      {
+        icon: <SettingOutlined />,
+        label: "Preferences",
+        action: () => message.info("Preferences coming soon"),
+        muted: true,
+      },
+      { divider: true },
+    ] : [
+      {
+        icon: <DeleteOutlined />,
+        label: "Clear Demo Data",
+        action: () => openModal(setClearDemoModal),
+        danger: true,
+        extraClass: "avatar-dropdown__item--clear-demo",
+      },
+      { divider: true },
+    ]),
     {
       icon: <InfoCircleOutlined />,
       label: "About Us",
@@ -129,17 +160,36 @@ const Header = () => {
     <>
       <header className="app-header">
         <Link to="/" className="app-header__brand">
+          <img
+            src="/images/favicon.ico"
+            alt="logo"
+            className="app-header__logo"
+          />
           Expense Management
         </Link>
 
         <div className="app-header__right">
           {loginUser && (
             <>
+              {isDemo && (
+                <span className="demo-session-badge">
+                  ⚡ Demo Session
+                </span>
+              )}
+              {isDemo && (
+                <button
+                  className="header-clear-demo-btn"
+                  onClick={() => setClearDemoModal(true)}
+                  aria-label="Clear demo data"
+                >
+                  <DeleteOutlined />
+                  <span>Clear Demo Data</span>
+                </button>
+              )}
               <span className="app-header__welcome">
                 Welcome, {loginUser.name}
               </span>
 
-              {/* Avatar with dropdown */}
               <div className="app-header__avatar-wrap" ref={dropdownRef}>
                 <button
                   className="app-header__avatar"
@@ -168,7 +218,7 @@ const Header = () => {
                       ) : (
                         <button
                           key={item.label}
-                          className={`avatar-dropdown__item${item.danger ? " avatar-dropdown__item--danger" : ""}${item.muted ? " avatar-dropdown__item--muted" : ""}`}
+                          className={`avatar-dropdown__item${item.danger ? " avatar-dropdown__item--danger" : ""}${item.muted ? " avatar-dropdown__item--muted" : ""}${item.extraClass ? ` ${item.extraClass}` : ""}`}
                           role="menuitem"
                           onClick={item.action}
                         >
@@ -183,21 +233,9 @@ const Header = () => {
             </>
           )}
 
-          {/* Standalone logout for non-logged-in or mobile fallback */}
-          {!loginUser && (
-            <Button
-              type="default"
-              icon={<LogoutOutlined />}
-              onClick={logoutHandler}
-              aria-label="Logout"
-            >
-              <span className="app-header__logout-text">Logout</span>
-            </Button>
-          )}
         </div>
       </header>
 
-      {/* ── View Profile Modal ── */}
       <Modal
         open={profileModal}
         onCancel={() => setProfileModal(false)}
@@ -233,7 +271,6 @@ const Header = () => {
         </div>
       </Modal>
 
-      {/* ── Update Password Modal ── */}
       <Modal
         open={passwordModal}
         onCancel={() => { setPasswordModal(false); pwdForm.resetFields(); }}
@@ -292,7 +329,6 @@ const Header = () => {
         </Form>
       </Modal>
 
-      {/* ── About Us Modal ── */}
       <Modal
         open={aboutModal}
         onCancel={() => setAboutModal(false)}
@@ -324,7 +360,6 @@ const Header = () => {
         </div>
       </Modal>
 
-      {/* ── Help & Support Modal ── */}
       <Modal
         open={helpModal}
         onCancel={() => setHelpModal(false)}
@@ -351,6 +386,36 @@ const Header = () => {
             <p>To change your password, use <strong>Update Password</strong> from the profile menu. If you're locked out, try registering with the same email again.</p>
           </div>
         </div>
+      </Modal>
+
+      <Modal
+        open={clearDemoModal}
+        onCancel={() => setClearDemoModal(false)}
+        title="Clear Demo Data"
+        centered
+        width={420}
+        footer={[
+          <Button key="cancel" onClick={() => setClearDemoModal(false)} disabled={clearDemoLoading}>
+            Cancel
+          </Button>,
+          <Button
+            key="confirm"
+            type="primary"
+            danger
+            loading={clearDemoLoading}
+            onClick={clearDemoDataHandler}
+          >
+            {clearDemoLoading ? "Clearing…" : "Yes, clear all"}
+          </Button>,
+        ]}
+      >
+        <p style={{ margin: "12px 0" }}>
+          This will permanently delete all <strong>seeded demo transactions</strong> for this session.
+          You can still add your own transactions afterwards.
+        </p>
+        <p style={{ margin: 0, color: "#57606a", fontSize: "0.875rem" }}>
+          This action cannot be undone.
+        </p>
       </Modal>
     </>
   );

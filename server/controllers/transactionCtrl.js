@@ -1,16 +1,9 @@
 const Transaction = require("../models/transactionModel");
+const User = require("../models/userModel");
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-const VALID_TYPES      = ["income", "expense"];
-const VALID_CATEGORIES = [
-  "salary", "tip", "project", "groceries", "food",
-  "movie", "bills", "medical", "fee", "tax", "other",
-];
+const VALID_TYPES = ["income", "expense"];
 
 const isValidObjectId = (id) => /^[a-f\d]{24}$/i.test(String(id));
-
-// ── Controllers ───────────────────────────────────────────────────────────────
 
 const getAllTransaction = async (req, res) => {
   try {
@@ -63,8 +56,8 @@ const addTransaction = async (req, res) => {
     if (!VALID_TYPES.includes(type)) {
       return res.status(400).json({ success: false, message: `type must be one of: ${VALID_TYPES.join(", ")}` });
     }
-    if (!VALID_CATEGORIES.includes(category)) {
-      return res.status(400).json({ success: false, message: `Invalid category: ${category}` });
+    if (!category.trim()) {
+      return res.status(400).json({ success: false, message: "category cannot be empty" });
     }
     if (isNaN(new Date(date))) {
       return res.status(400).json({ success: false, message: "Invalid date" });
@@ -97,7 +90,6 @@ const editTransaction = async (req, res) => {
       return res.status(400).json({ success: false, message: "payload is required" });
     }
 
-    // Only allow known fields to be updated
     const { amount, type, category, description, date } = payload;
     const update = {};
 
@@ -163,9 +155,25 @@ const deleteTransaction = async (req, res) => {
   }
 };
 
+const deleteAllTransactions = async (req, res) => {
+  try {
+    const isDemo = req.isDemo || !!(await User.findById(req.userId).select("isDemo").lean())?.isDemo;
+
+    if (!isDemo) {
+      return res.status(403).json({ success: false, message: "This action is only available for demo accounts" });
+    }
+
+    const { deletedCount } = await Transaction.deleteMany({ userId: req.userId });
+    res.status(200).json({ success: true, message: `Deleted ${deletedCount} transaction(s)` });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to delete transactions" });
+  }
+};
+
 module.exports = {
   getAllTransaction,
   addTransaction,
   editTransaction,
   deleteTransaction,
+  deleteAllTransactions,
 };

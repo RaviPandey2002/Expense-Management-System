@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const users = require("./userModel");
 
 const VALID_TYPES = ["income", "expense"];
 
@@ -7,7 +6,7 @@ const TransactionSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Types.ObjectId,
-      ref: users,
+      ref: "users",
       required: true,
     },
     amount: {

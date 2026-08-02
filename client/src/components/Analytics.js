@@ -14,15 +14,12 @@ import {
   Bar,
   ResponsiveContainer,
 } from "recharts";
-import CATEGORIES from "../utils/categories";
 
-// ── Palette ────────────────────────────────────
 const COLOR_INCOME  = "#16a34a";
 const COLOR_EXPENSE = "#dc2626";
 
-// ── Helpers ────────────────────────────────────
 const fmt = (v) =>
-  v >= 1000 ? `$${(v / 1000).toFixed(1)}k` : `$${v}`;
+  v >= 1000 ? `₹${(v / 1000).toFixed(1)}k` : `₹${v}`;
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
@@ -37,7 +34,7 @@ const CustomTooltip = ({ active, payload, label }) => {
       {label && <p style={{ marginBottom: 4, fontWeight: 600, color: "var(--color-text)" }}>{label}</p>}
       {payload.map((entry) => (
         <p key={entry.name} style={{ color: entry.color, margin: "2px 0" }}>
-          {entry.name}: ${Number(entry.value).toLocaleString()}
+          {entry.name}: ₹{Number(entry.value).toLocaleString()}
         </p>
       ))}
     </div>
@@ -45,13 +42,11 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const Analytics = ({ allTransaction, totalIncome, totalExpense }) => {
-  const categories = CATEGORIES.filter((c) => c !== "other");
+  const categories = [...new Set(allTransaction.map((t) => t.category).filter(Boolean))];
 
-  // ── Chart 1: Area chart — income vs expense over time ──
-  // Key by ISO date (YYYY-MM-DD) for correct sort, display as "DD MMM"
   const timeMap = {};
   allTransaction.forEach((t) => {
-    const isoDay = t.date.slice(0, 10); // "2024-03-15"
+    const isoDay = t.date.slice(0, 10);
     const display = new Date(t.date).toLocaleDateString("en-GB", {
       day: "2-digit", month: "short",
     });
@@ -61,22 +56,17 @@ const Analytics = ({ allTransaction, totalIncome, totalExpense }) => {
   });
   const timeData = Object.values(timeMap).sort((a, b) => a.isoDay.localeCompare(b.isoDay));
 
-  // ── Chart 2: Donut — income vs expense split ──
   const donutData = [
     { name: "Income",  value: totalIncome  },
     { name: "Expense", value: totalExpense },
   ].filter((d) => d.value > 0);
 
-  // ── Chart 3: Horizontal bar — category breakdown ──
-  const catData = categories
-    .map((cat) => {
-      const income  = allTransaction.filter((t) => t.type === "income"  && t.category === cat).reduce((a, t) => a + t.amount, 0);
-      const expense = allTransaction.filter((t) => t.type === "expense" && t.category === cat).reduce((a, t) => a + t.amount, 0);
-      return { category: cat.charAt(0).toUpperCase() + cat.slice(1), income, expense };
-    })
-    .filter((d) => d.income > 0 || d.expense > 0);
+  const catData = categories.map((cat) => {
+    const income  = allTransaction.filter((t) => t.type === "income"  && t.category === cat).reduce((a, t) => a + t.amount, 0);
+    const expense = allTransaction.filter((t) => t.type === "expense" && t.category === cat).reduce((a, t) => a + t.amount, 0);
+    return { category: cat.charAt(0).toUpperCase() + cat.slice(1), income, expense };
+  });
 
-  // ── Empty state ───────────────────────────────
   if (!allTransaction.length) {
     return (
       <div style={{ padding: 40, textAlign: "center", color: "var(--color-text-muted)" }}>
@@ -88,7 +78,6 @@ const Analytics = ({ allTransaction, totalIncome, totalExpense }) => {
   return (
     <div className="analytics-charts">
 
-      {/* ── Row 1: Area chart (full width) ── */}
       <div className="analytics-chart-card">
         <p className="analytics-chart-card__title">Income vs Expense Over Time</p>
         <ResponsiveContainer width="100%" height={220}>
@@ -114,10 +103,8 @@ const Analytics = ({ allTransaction, totalIncome, totalExpense }) => {
         </ResponsiveContainer>
       </div>
 
-      {/* ── Row 2: Donut + Bar side by side ── */}
       <div className="analytics-row2">
 
-        {/* Donut chart */}
         <div className="analytics-chart-card">
           <p className="analytics-chart-card__title">Income vs Expense Split</p>
           {donutData.length > 0 ? (
@@ -146,10 +133,10 @@ const Analytics = ({ allTransaction, totalIncome, totalExpense }) => {
               </ResponsiveContainer>
               <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 4 }}>
                 <span style={{ fontSize: "0.8125rem", color: COLOR_INCOME, fontWeight: 600 }}>
-                  Income: ${totalIncome.toLocaleString()}
+                  Income: ₹{totalIncome.toLocaleString()}
                 </span>
                 <span style={{ fontSize: "0.8125rem", color: COLOR_EXPENSE, fontWeight: 600 }}>
-                  Expense: ${totalExpense.toLocaleString()}
+                  Expense: ₹{totalExpense.toLocaleString()}
                 </span>
               </div>
             </>
@@ -158,7 +145,6 @@ const Analytics = ({ allTransaction, totalIncome, totalExpense }) => {
           )}
         </div>
 
-        {/* Horizontal bar chart */}
         <div className="analytics-chart-card">
           <p className="analytics-chart-card__title">Category Breakdown</p>
           {catData.length > 0 ? (

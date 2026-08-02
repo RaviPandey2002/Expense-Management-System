@@ -5,7 +5,6 @@ import axios from "axios";
 import CATEGORIES from "../utils/categories";
 
 const TransactionModal = ({ showModal, setShowModal, editable, setEditable, onSuccess }) => {
-  const [isOtherCategory, setIsOtherCategory] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const { message } = App.useApp();
@@ -13,38 +12,36 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, onSu
   useEffect(() => {
     if (showModal) {
       if (editable) {
-        setIsOtherCategory(editable.category === "other");
         form.setFieldsValue({
           ...editable,
           date: editable.date ? dayjs(editable.date) : null,
         });
       } else {
-        setIsOtherCategory(false);
         form.resetFields();
       }
     }
   }, [editable, form, showModal]);
 
   const handleSubmit = async (values) => {
-    const categoryValue = isOtherCategory ? values.customCategory : values.category;
-    const descriptionValue = values?.description || "No description";
+    const payload = {
+      ...values,
+      date: values.date ? values.date.toISOString() : values.date,
+      description: values.description || "No description",
+    };
 
     setLoading(true);
     try {
       if (editable) {
         await axios.post(
           `${process.env.REACT_APP_API_BASE_URL}/transactions/edit-transaction`,
-          {
-            payload: { ...values, category: categoryValue },
-            transactionId: editable._id,
-          },
+          { payload, transactionId: editable._id },
           { withCredentials: true }
         );
         message.success("Transaction updated successfully");
       } else {
         await axios.post(
           `${process.env.REACT_APP_API_BASE_URL}/transactions/add-transaction`,
-          { ...values, category: categoryValue, description: descriptionValue },
+          payload,
           { withCredentials: true }
         );
         message.success("Transaction added successfully");
@@ -60,14 +57,9 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, onSu
     }
   };
 
-  const handleCategoryChange = (value) => {
-    setIsOtherCategory(value === "other");
-  };
-
   const handleCancel = () => {
     setShowModal(false);
     setEditable(null);
-    setIsOtherCategory(false);
     form.resetFields();
   };
 
@@ -106,7 +98,7 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, onSu
             type="number"
             min="0.01"
             step="0.01"
-            prefix="$"
+            prefix="₹"
             placeholder="Enter amount"
             size="large"
           />
@@ -129,27 +121,15 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, onSu
           rules={[{ required: true, message: "Category is required" }]}
         >
           <Select
+            showSearch
             placeholder="Select a category"
-            onChange={handleCategoryChange}
             size="large"
-          >
-            {CATEGORIES.map((cat) => (
-              <Select.Option key={cat} value={cat}>
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
-              </Select.Option>
-            ))}
-          </Select>
+            options={CATEGORIES.map((cat) => ({
+              value: cat,
+              label: cat.charAt(0).toUpperCase() + cat.slice(1),
+            }))}
+          />
         </Form.Item>
-
-        {isOtherCategory && (
-          <Form.Item
-            label="Custom Category"
-            name="customCategory"
-            rules={[{ required: true, message: "Please specify the category" }]}
-          >
-            <Input placeholder="Enter custom category" size="large" />
-          </Form.Item>
-        )}
 
         <Form.Item
           label="Date"

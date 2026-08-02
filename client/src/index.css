@@ -115,11 +115,21 @@ a:hover {
 }
 
 .app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 1.125rem;
   font-weight: 700;
   color: var(--color-primary);
   text-decoration: none;
   white-space: nowrap;
+}
+
+.app-header__logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .app-header__brand:hover {
@@ -171,6 +181,48 @@ a:hover {
 
 .app-header__avatar:focus-visible {
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+}
+
+.demo-session-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  color: #92400e;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.header-clear-demo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid #fca5a5;
+  color: #dc2626;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.header-clear-demo-btn:hover {
+  background-color: #fef2f2;
+  border-color: #ef4444;
+}
+
+.header-clear-demo-btn:focus-visible {
+  outline: 2px solid #ef4444;
+  outline-offset: 2px;
 }
 
 /* ─────────────────────────────────────────────
@@ -479,54 +531,22 @@ a:hover {
 .auth-page {
   min-height: 100vh;
   display: flex;
-}
-
-/* Left branding panel */
-.auth-panel {
-  flex: 1;
-  background-color: var(--color-primary-light);
-  display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-xl);
-  gap: var(--spacing-md);
-  min-width: 0;
+  background-color: var(--color-surface);
+  padding: var(--spacing-xl) var(--spacing-md);
 }
 
-.auth-panel__title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-primary);
-  text-align: center;
-  word-break: break-word;
-}
-
-.auth-panel__tagline {
-  font-size: 0.9375rem;
-  color: var(--color-text-muted);
-  text-align: center;
-}
-
-.auth-panel__illustration {
-  width: 80%;
-  max-width: 500px;
-  margin-top: var(--spacing-md);
-}
-
-/* Right form panel */
 .auth-form-panel {
-  flex: 1;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-xl);
-  background-color: var(--color-bg);
 }
 
 .auth-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 440px;
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -534,8 +554,29 @@ a:hover {
   box-shadow: var(--shadow-card);
 }
 
-.auth-card__title {
+/* Brand block — app name + tagline inside the card */
+.auth-card__brand {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.auth-card__brand-title {
   font-size: 1.375rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: var(--spacing-xs);
+}
+
+.auth-card__brand-tagline {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.auth-card__title {
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--color-text);
   margin-bottom: var(--spacing-xs);
@@ -872,6 +913,11 @@ a:hover {
 /* ─────────────────────────────────────────────
    TRANSACTION MODAL
    ───────────────────────────────────────────── */
+/* Remove the text cursor that showSearch puts on the select input */
+.ant-select-selection-search-input {
+  cursor: default !important;
+}
+
 .modal-footer-btns {
   display: flex;
   justify-content: flex-end;
@@ -881,6 +927,20 @@ a:hover {
 /* ─────────────────────────────────────────────
    TRANSACTION TABLE
    ───────────────────────────────────────────── */
+
+/* 1. Remove the grey tint Ant Design applies to every body cell in the
+      sorted column — only the header th should be highlighted. */
+.ant-table-tbody .ant-table-column-sort {
+  background: transparent !important;
+}
+
+/* 2. When hovering a row, restore the standard row-hover colour on sorted
+      cells so the whole row lights up uniformly (Ant Design uses a more
+      specific selector for sorted cells that would otherwise win). */
+.ant-table-tbody > tr.ant-table-row:hover > td.ant-table-column-sort {
+  background: var(--ant-table-row-hover-bg, #fafafa) !important;
+}
+
 .table-wrap {
   background: var(--color-bg);
   border: 1px solid var(--color-border);
@@ -996,6 +1056,18 @@ a:hover {
   .analytics-row2 {
     grid-template-columns: 1fr 1fr;
   }
+
+  /* Hide inline header button — dropdown item handles it on smaller screens */
+  .header-clear-demo-btn {
+    display: none;
+  }
+}
+
+/* Desktop: ≥1024px — hide the dropdown item since the inline button is visible */
+@media (min-width: 1024px) {
+  .avatar-dropdown__item--clear-demo {
+    display: none;
+  }
 }
 
 /* Mobile: ≤767px */
@@ -1025,42 +1097,20 @@ a:hover {
     display: none;
   }
 
-  /* Auth pages — single column */
-  .auth-page {
-    flex-direction: column;
-  }
-
-  .auth-panel {
-    padding: var(--spacing-md) var(--spacing-md) var(--spacing-sm);
-    flex: none;
-    max-height: 40vh;
-    gap: var(--spacing-sm);
-  }
-
-  .auth-panel__title {
-    font-size: 1.125rem;
-  }
-
-  .auth-panel__tagline {
-    font-size: 0.8125rem;
-  }
-
-  .auth-panel__illustration {
+  .demo-session-badge {
     display: none;
   }
 
-  .auth-form-panel {
-    flex: 1;
+  /* Auth pages — tighten card on mobile */
+  .auth-card {
+    max-width: 100%;
     padding: var(--spacing-lg) var(--spacing-md);
-    align-items: center;
-    justify-content: flex-start;
-    padding-top: var(--spacing-lg);
+    box-shadow: none;
   }
 
-  .auth-card {
-    width: 100%;
-    max-width: 440px;
-    padding: var(--spacing-lg) var(--spacing-md);
+  .auth-card__brand {
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
   }
 
   /* KPI cards — compact horizontal strip on mobile */

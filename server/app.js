@@ -1,9 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-const colors = require("colors");
 const cookieParser = require("cookie-parser");
-const path = require("path");
 
 const app = express();
 
@@ -23,12 +21,9 @@ app.use(
 
 app.use(cookieParser());
 
-// # HEALTH CHECK
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok", message: "Backend is online" });
 });
-
-// # ROUTES
 
 const authMiddleware = require("./middleware/authMiddleware");
 

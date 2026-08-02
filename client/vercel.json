@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/v1/:path*",
-      "destination": "https://your-app-name.onrender.com/api/v1/:path*"
+      "destination": "https://expense-management-system-backend-cbh2.onrender.com/api/v1/:path*"
     }
   ]
 }

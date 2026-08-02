@@ -531,22 +531,52 @@ a:hover {
 .auth-page {
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--color-surface);
-  padding: var(--spacing-xl) var(--spacing-md);
 }
 
+/* Left branding panel */
+.auth-panel {
+  flex: 1;
+  background-color: var(--color-primary-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  gap: var(--spacing-md);
+}
+
+.auth-panel__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-align: center;
+}
+
+.auth-panel__tagline {
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.auth-panel__illustration {
+  width: 80%;
+  max-width: 500px;
+  margin-top: var(--spacing-md);
+}
+
+/* Right form panel */
 .auth-form-panel {
-  width: 100%;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: var(--spacing-xl);
+  background-color: var(--color-bg);
 }
 
 .auth-card {
   width: 100%;
-  max-width: 440px;
+  max-width: 400px;
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -554,12 +584,10 @@ a:hover {
   box-shadow: var(--shadow-card);
 }
 
-/* Brand block — app name + tagline inside the card */
+/* Brand block inside the card — visible on mobile only;
+   hidden on desktop where the left auth-panel carries the branding */
 .auth-card__brand {
-  text-align: center;
-  margin-bottom: var(--spacing-lg);
-  padding-bottom: var(--spacing-lg);
-  border-bottom: 1px solid var(--color-border);
+  display: none;
 }
 
 .auth-card__brand-title {
@@ -576,7 +604,7 @@ a:hover {
 }
 
 .auth-card__title {
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   font-weight: 700;
   color: var(--color-text);
   margin-bottom: var(--spacing-xs);
@@ -1101,16 +1129,33 @@ a:hover {
     display: none;
   }
 
-  /* Auth pages — tighten card on mobile */
+  /* Auth pages — single column on mobile */
+  .auth-page {
+    flex-direction: column;
+  }
+
+  .auth-panel {
+    display: none;
+  }
+
+  .auth-form-panel {
+    padding: var(--spacing-xl) var(--spacing-md);
+    background-color: var(--color-surface);
+  }
+
   .auth-card {
     max-width: 100%;
     padding: var(--spacing-lg) var(--spacing-md);
     box-shadow: none;
   }
 
+  /* Show brand block inside card on mobile (replaces the hidden left panel) */
   .auth-card__brand {
+    display: block;
+    text-align: center;
     margin-bottom: var(--spacing-md);
     padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
   }
 
   /* KPI cards — compact horizontal strip on mobile */
@@ -1251,6 +1296,22 @@ a:hover {
   /* Header — logout text hidden on mobile */
   .app-header__logout-text {
     display: none;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   MEDIUM MOBILE: 481px – 767px
+   Card should not stretch full-width — cap and centre it
+   ───────────────────────────────────────────── */
+@media (min-width: 481px) and (max-width: 767px) {
+  .auth-form-panel {
+    padding: var(--spacing-xl);
+  }
+
+  .auth-card {
+    max-width: 480px;
+    margin: 0 auto;
+    box-shadow: var(--shadow-card);
   }
 }
 

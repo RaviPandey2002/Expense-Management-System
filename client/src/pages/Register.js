@@ -28,8 +28,21 @@ const Register = () => {
 
   return (
     <div className="auth-page">
+      {/* ── Left branding panel (desktop only) ── */}
+      <div className="auth-panel">
+        <h1 className="auth-panel__title">Expense Management System</h1>
+        <p className="auth-panel__tagline">Track your money, own your future.</p>
+        <img
+          src="/images/financeIllustration.png"
+          alt="Finance illustration"
+          className="auth-panel__illustration"
+        />
+      </div>
+
+      {/* ── Right form panel ── */}
       <div className="auth-form-panel">
         <div className="auth-card">
+          {/* Brand block — shown only on mobile (auth-panel is hidden on mobile) */}
           <div className="auth-card__brand">
             <h1 className="auth-card__brand-title">Expense Management</h1>
             <p className="auth-card__brand-tagline">Track your money, own your future.</p>

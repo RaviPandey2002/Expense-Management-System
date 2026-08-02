@@ -80,7 +80,7 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, onSu
       centered
       width={480}
       style={{ maxWidth: "calc(100vw - 32px)" }}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form
         form={form}
@@ -92,10 +92,20 @@ const TransactionModal = ({ showModal, setShowModal, editable, setEditable, onSu
         <Form.Item
           label="Amount"
           name="amount"
-          rules={[{ required: true, message: "Amount is required" }]}
+          rules={[
+            { required: true, message: "Amount is required" },
+            {
+              validator: (_, value) =>
+                value && Number(value) > 0
+                  ? Promise.resolve()
+                  : Promise.reject(new Error("Amount must be a positive number")),
+            },
+          ]}
         >
           <Input
             type="number"
+            min="0.01"
+            step="0.01"
             prefix="$"
             placeholder="Enter amount"
             size="large"

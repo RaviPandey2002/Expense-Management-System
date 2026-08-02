@@ -587,6 +587,10 @@ a:hover {
   border-left: 4px solid var(--color-primary);
 }
 
+.kpi-card--balance-negative {
+  border-left: 4px solid var(--color-expense);
+}
+
 .kpi-card__label {
   font-size: 0.8125rem;
   color: var(--color-text-muted);
@@ -1059,28 +1063,37 @@ a:hover {
     padding: var(--spacing-lg) var(--spacing-md);
   }
 
-  /* KPI cards — single column on mobile */
+  /* KPI cards — compact horizontal strip on mobile */
   .kpi-row {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-md);
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
   }
 
   .kpi-card {
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: 6px 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
   }
 
   .kpi-card__label {
-    font-size: 0.75rem;
-    margin-bottom: 2px;
+    font-size: 0.6875rem;
+    margin-bottom: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
   .kpi-card__value {
-    font-size: 1.125rem;
+    font-size: 0.9375rem;
+    line-height: 1.3;
   }
 
+  /* Hide the decorative icon on mobile — saves vertical space */
   .kpi-card__icon {
-    font-size: 1.375rem;
+    display: none;
   }
 
   /* FilterBar — three stacked rows on mobile */
@@ -1191,23 +1204,8 @@ a:hover {
   }
 }
 
-/* Tablet mid: 481–767px — 2-col KPI layout */
-@media (min-width: 481px) and (max-width: 767px) {
-  .kpi-row {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .kpi-card--balance {
-    grid-column: 1 / -1;
-  }
-}
-
 /* Small phone: ≤480px */
 @media (max-width: 480px) {
-  .kpi-row {
-    grid-template-columns: 1fr;
-  }
-
   .analytics-chart-card {
     padding: var(--spacing-md);
   }

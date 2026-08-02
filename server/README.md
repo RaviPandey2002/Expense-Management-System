@@ -14,7 +14,7 @@ npm run dev
 `.env`:
 
 ```env
-PORT=8001
+PORT=8000
 MONGO_URL=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 CLIENT_URLS=http://localhost:3000

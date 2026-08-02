@@ -27,13 +27,15 @@ const HomePage = () => {
   const { message } = App.useApp();
 
   // ── KPI calculations ──────────────────────────────
-  const totalIncome = allTransaction
-    .filter((t) => t.type === "income")
-    .reduce((acc, t) => acc + t.amount, 0);
+  const totalIncome = useMemo(
+    () => allTransaction.filter((t) => t.type === "income").reduce((acc, t) => acc + t.amount, 0),
+    [allTransaction]
+  );
 
-  const totalExpense = allTransaction
-    .filter((t) => t.type === "expense")
-    .reduce((acc, t) => acc + t.amount, 0);
+  const totalExpense = useMemo(
+    () => allTransaction.filter((t) => t.type === "expense").reduce((acc, t) => acc + t.amount, 0),
+    [allTransaction]
+  );
 
   const totalBalance = totalIncome - totalExpense;
 
@@ -178,14 +180,17 @@ const HomePage = () => {
     <Layout>
       {/* ── KPI Summary Cards ── */}
       <div className="kpi-row">
-        <div className="kpi-card kpi-card--balance">
+        <div className={`kpi-card kpi-card--balance${totalBalance < 0 ? " kpi-card--balance-negative" : ""}`}>
           <div>
             <p className="kpi-card__label">Total Balance</p>
-            <p className="kpi-card__value kpi-card__value--balance">
-              ${totalBalance.toLocaleString()}
+            <p className={`kpi-card__value${totalBalance < 0 ? " kpi-card__value--expense" : " kpi-card__value--balance"}`}>
+              {totalBalance < 0 ? "-" : ""}${Math.abs(totalBalance).toLocaleString()}
             </p>
           </div>
-          <WalletOutlined className="kpi-card__icon" style={{ color: "var(--color-primary)" }} />
+          <WalletOutlined
+            className="kpi-card__icon"
+            style={{ color: totalBalance < 0 ? "var(--color-expense)" : "var(--color-primary)" }}
+          />
         </div>
 
         <div className="kpi-card kpi-card--income">
@@ -237,7 +242,7 @@ const HomePage = () => {
             locale={{ emptyText: "No transactions found. Add your first transaction." }}
           />
         ) : (
-          <Analytics allTransaction={allTransaction} />
+          <Analytics allTransaction={allTransaction} totalIncome={totalIncome} totalExpense={totalExpense} />
         )}
       </div>
 

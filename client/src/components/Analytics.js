@@ -44,16 +44,8 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-const Analytics = ({ allTransaction }) => {
+const Analytics = ({ allTransaction, totalIncome, totalExpense }) => {
   const categories = CATEGORIES.filter((c) => c !== "other");
-
-  // ── KPI totals ────────────────────────────────
-  const totalIncome = allTransaction
-    .filter((t) => t.type === "income")
-    .reduce((acc, t) => acc + t.amount, 0);
-  const totalExpense = allTransaction
-    .filter((t) => t.type === "expense")
-    .reduce((acc, t) => acc + t.amount, 0);
 
   // ── Chart 1: Area chart — income vs expense over time ──
   // Key by ISO date (YYYY-MM-DD) for correct sort, display as "DD MMM"

@@ -36,12 +36,10 @@ function App() {
   );
 }
 
-export function ProtectedRoutes(props) {
-  if (localStorage.getItem("user")) {
-    return props.children;
-  } else {
-    return <Navigate to="/login" />;
-  }
+export function ProtectedRoutes({ children }) {
+  return localStorage.getItem("user")
+    ? children
+    : <Navigate to="/login" replace />;
 }
 
 export default App;

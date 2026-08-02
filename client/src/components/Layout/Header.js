@@ -221,6 +221,14 @@ const Header = () => {
               <span className="profile-modal__meta-label">Status</span>
               <span className="profile-modal__meta-value profile-modal__meta-value--active">● Active</span>
             </div>
+            {loginUser?.createdAt && (
+              <div className="profile-modal__meta-row">
+                <span className="profile-modal__meta-label">Member since</span>
+                <span className="profile-modal__meta-value">
+                  {new Date(loginUser.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </Modal>

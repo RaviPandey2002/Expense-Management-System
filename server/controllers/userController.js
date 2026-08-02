@@ -6,11 +6,17 @@ const jwt = require("jsonwebtoken");
 const registerController = async (req, res) => {
   try {
     const { name, email, password } = req.body;
+
+    if (!name?.trim() || !email?.trim() || !password) {
+      return res.status(400).json({ success: false, message: "name, email and password are required" });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ success: false, message: "Password must be at least 6 characters" });
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(401).json({
-        message: "This email already exists!!",
-      });
+      return res.status(409).json({ success: false, message: "An account with this email already exists" });
     }
 
     // hashing the password before saving it in DB

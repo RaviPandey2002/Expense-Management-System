@@ -76,12 +76,14 @@ npm run dev
 **Server `.env` variables:**
 
 ```env
-PORT=8001
+PORT=8000
 MONGO_URL=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 CLIENT_URLS=http://localhost:3000
 NODE_ENV=development
 ```
+
+> **Note:** The server defaults to port **8000**. Keep `PORT` in `.env` and `REACT_APP_API_BASE_URL` in the client `.env.development` in sync.
 
 ### 3. Setup client
 
@@ -94,7 +96,7 @@ npm start
 **Client `.env.development` variable:**
 
 ```env
-REACT_APP_API_BASE_URL=http://localhost:8001/api/v1
+REACT_APP_API_BASE_URL=http://localhost:8000/api/v1
 ```
 
 ---
